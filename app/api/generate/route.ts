@@ -1,34 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const TREE_PROMPT = `你是学科专家。用户想学习：{topic}
+const TREE_PROMPT = `You are a subject expert. User wants to learn: {topic}
 
-请生成一个清晰的学习路径（技能树），包含：
-1. 3-6个顶级主干节点，每个有2-4个子节点
-2. 每个节点的前置依赖（只依赖更基础的概念）
-3. 每个节点的难度评级（入门/进阶/高级）
-4. 每个节点的核心资源（最多2本书 + 1个网站），必须包含真实的可访问网址
-5. 整体描述（50字以内）
+Generate a clear learning path (skill tree) with:
+1. 3-6 top-level main nodes, each with 2-4 child nodes
+2. Prerequisites for each node (only depends on more fundamental concepts)
+3. Difficulty level for each node (Beginner/Intermediate/Advanced)
+4. Core resources for each node (max 2 books + 1 website), must include real accessible URLs
+5. Overall description (within 50 characters)
 
-输出严格 JSON 格式：
+Output strictly JSON format:
 {
-  "topic": "主题名",
-  "description": "整体描述",
+  "topic": "Topic name",
+  "description": "Overall description",
   "nodes": [
     {
-      "id": "唯一ID",
-      "name": "节点名",
-      "description": "节点描述（30字以内）",
-      "level": "入门|进阶|高级",
-      "prerequisites": ["前置节点ID"],
-      "children": ["子节点ID"],
-      "resources": [{"title": "书名", "url": "网址", "type": "book", "level": "入门|进阶|高级"}]
+      "id": "uniqueID",
+      "name": "Node name",
+      "description": "Node description (within 30 characters)",
+      "level": "Beginner|Intermediate|Advanced",
+      "prerequisites": ["prerequisiteNodeID"],
+      "children": ["childNodeID"],
+      "resources": [{"title": "Book title", "url": "URL", "type": "book", "level": "Beginner|Intermediate|Advanced"}]
     }
   ],
-  "books": [{"title": "书名", "author": "作者", "url": "网址", "type": "book", "level": "入门|进阶|高级"}],
-  "websites": [{"title": "网站名", "url": "网址", "type": "website"}]
+  "books": [{"title": "Book title", "author": "Author", "url": "URL", "type": "book", "level": "Beginner|Intermediate|Advanced"}],
+  "websites": [{"title": "Website name", "url": "URL", "type": "website"}]
 }
 
-请直接输出 JSON，不要有其他文字。`
+Output JSON only, no other text.`
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: 'MiniMax-M2.7',
         messages: [
-          { role: 'system', content: '你是一个学科专家。请严格按要求输出JSON。' },
+          { role: 'system', content: 'You are a subject expert. Output JSON only, no other text.' },
           { role: 'user', content: TREE_PROMPT.replace('{topic}', topic) }
         ],
         temperature: 0.7,
