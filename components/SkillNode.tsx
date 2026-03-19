@@ -5,28 +5,28 @@ import { Handle, Position } from '@xyflow/react'
 import type { NodeProps } from '@xyflow/react'
 import type { SkillNodeData } from '@/types'
 
-// Jade tablet color scheme - 古朴 jade tones
+// Lime color scheme - fresh green tones
 const levelColors = {
   '入门': {
-    bg: 'bg-[rgb(var(--jade-pale-bg))] dark:bg-[rgb(var(--jade-pale-bg))]',
-    border: 'border-[rgb(var(--jade-pale))] dark:border-[rgb(var(--jade-pale))]',
-    text: 'text-[rgb(var(--jade-aged))] dark:text-[rgb(var(--jade-pale))]',
-    dot: 'bg-[rgb(var(--jade-pale))]',
-    glow: 'hover:shadow-[0_0_12px_rgba(180,200,180,0.4)] dark:hover:shadow-[0_0_12px_rgba(130,150,130,0.3)]',
+    bg: 'bg-[rgb(var(--lime-bright-bg))] dark:bg-[rgb(var(--lime-bright-bg))]',
+    border: 'border-[rgb(var(--lime-bright))] dark:border-[rgb(var(--lime-bright))]',
+    text: 'text-[rgb(var(--lime-dark))] dark:text-[rgb(var(--lime-bright))]',
+    dot: 'bg-[rgb(var(--lime-bright))]',
+    glow: 'hover:shadow-[0_0_12px_rgba(180,220,80,0.5)] dark:hover:shadow-[0_0_12px_rgba(150,190,100,0.4)]',
   },
   '进阶': {
-    bg: 'bg-[rgb(var(--jade-aged-bg))] dark:bg-[rgb(var(--jade-aged-bg))]',
-    border: 'border-[rgb(var(--jade-aged))] dark:border-[rgb(var(--jade-aged))]',
-    text: 'text-[rgb(var(--jade-aged))] dark:text-[rgb(var(--jade-aged))]',
-    dot: 'bg-[rgb(var(--jade-aged))]',
-    glow: 'hover:shadow-[0_0_12px_rgba(100,130,110,0.4)] dark:hover:shadow-[0_0_12px_rgba(100,130,110,0.3)]',
+    bg: 'bg-[rgb(var(--lime-medium-bg))] dark:bg-[rgb(var(--lime-medium-bg))]',
+    border: 'border-[rgb(var(--lime-medium))] dark:border-[rgb(var(--lime-medium))]',
+    text: 'text-[rgb(var(--lime-dark))] dark:text-[rgb(var(--lime-medium))]',
+    dot: 'bg-[rgb(var(--lime-medium))]',
+    glow: 'hover:shadow-[0_0_12px_rgba(120,180,60,0.5)] dark:hover:shadow-[0_0_12px_rgba(100,150,60,0.4)]',
   },
   '高级': {
-    bg: 'bg-[rgb(var(--jade-red-bg))] dark:bg-[rgb(var(--jade-red-bg))]',
-    border: 'border-[rgb(var(--jade-red))] dark:border-[rgb(var(--jade-red))]',
-    text: 'text-[rgb(var(--jade-red))] dark:text-[rgb(var(--jade-red))]',
-    dot: 'bg-[rgb(var(--jade-red))]',
-    glow: 'hover:shadow-[0_0_12px_rgba(140,90,80,0.4)] dark:hover:shadow-[0_0_12px_rgba(140,90,80,0.3)]',
+    bg: 'bg-[rgb(var(--lime-dark-bg))] dark:bg-[rgb(var(--lime-dark-bg))]',
+    border: 'border-[rgb(var(--lime-dark))] dark:border-[rgb(var(--lime-dark))]',
+    text: 'text-[rgb(var(--lime-dark))] dark:text-[rgb(var(--lime-dark))]',
+    dot: 'bg-[rgb(var(--lime-dark))]',
+    glow: 'hover:shadow-[0_0_12px_rgba(80,140,40,0.5)] dark:hover:shadow-[0_0_12px_rgba(80,130,50,0.4)]',
   },
 } as const
 
@@ -41,13 +41,13 @@ const statusStyles = {
     opacity: 'opacity-100',
     filter: 'none',
     cursor: 'pointer',
-    ring: 'hover:ring-2 hover:ring-[rgb(var(--jade-aged))] hover:ring-offset-2',
+    ring: 'hover:ring-2 hover:ring-[rgb(var(--lime-medium))] hover:ring-offset-2',
   },
   learned: {
     opacity: 'opacity-100',
     filter: 'none',
     cursor: 'pointer',
-    ring: 'ring-2 ring-[rgb(var(--jade-aged))] ring-offset-2 animate-jade-glow',
+    ring: 'ring-2 ring-[rgb(var(--lime-medium))] ring-offset-2 animate-lime-glow',
   },
 } as const
 
@@ -61,7 +61,7 @@ function SkillNodeComponent(props: NodeProps) {
   return (
     <div
       className={`
-        jade-tablet relative px-4 py-3 rounded-lg border-2 min-w-[150px] max-w-[170px]
+        lime-tablet relative px-4 py-3 rounded-lg border-2 min-w-[150px] max-w-[170px]
         ${colors.bg} ${colors.border}
         ${status.opacity} ${status.filter}
         transition-all duration-500 ease-out
@@ -81,7 +81,7 @@ function SkillNodeComponent(props: NodeProps) {
         <span className={`w-2 h-2 rounded-full ${colors.dot} shadow-sm`} />
         <span className={`text-xs font-medium ${colors.text}`}>{data.level}</span>
         {isLearned && (
-          <span className="ml-auto text-[rgb(var(--jade-aged))] text-sm">✓</span>
+          <span className="ml-auto text-[rgb(var(--lime-medium))] text-sm">✓</span>
         )}
         {isLocked && (
           <span className="ml-auto text-[rgb(var(--muted-foreground))] text-sm">🔒</span>
@@ -95,7 +95,7 @@ function SkillNodeComponent(props: NodeProps) {
             ? 'text-[rgb(var(--muted-foreground))]'
             : 'text-[rgb(var(--foreground))]'
         }`}
-        style={{ fontFamily: 'var(--font-noto-serif), serif' }}
+        style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
       >
         {data.name}
       </div>

@@ -122,12 +122,12 @@ export default function TreeView({ treeId }: { treeId: string }) {
     return (
       <div className="flex items-center justify-center h-full bg-rice-paper">
         <div className="text-center animate-ink-spread">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl jade-tablet border-2 border-[rgb(var(--jade-pale))] flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl lime-tablet border-2 border-[rgb(var(--lime-bright))] flex items-center justify-center">
             <span className="text-3xl">🌳</span>
           </div>
           <h3
             className="text-lg font-semibold text-[rgb(var(--foreground))] mb-2"
-            style={{ fontFamily: 'var(--font-noto-serif), serif' }}
+            style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
           >
             Skill Tree Not Found
           </h3>
@@ -165,7 +165,7 @@ export default function TreeView({ treeId }: { treeId: string }) {
               <div>
                 <h1
                   className="font-bold text-[rgb(var(--foreground))]"
-                  style={{ fontFamily: 'var(--font-noto-serif), serif' }}
+                  style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
                 >
                   {tree.topic}
                 </h1>
@@ -174,13 +174,13 @@ export default function TreeView({ treeId }: { treeId: string }) {
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         percent === 100
-                          ? 'bg-gradient-to-r from-[rgb(var(--jade-aged))] to-[rgb(var(--jade-pale))]'
-                          : 'bg-gradient-to-r from-[rgb(var(--jade-aged))] to-[rgb(var(--accent))]'
+                          ? 'bg-gradient-to-r from-[rgb(var(--lime-medium))] to-[rgb(var(--lime-bright))]'
+                          : 'bg-gradient-to-r from-[rgb(var(--lime-medium))] to-[rgb(var(--accent))]'
                       }`}
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <span className="text-sm font-medium text-[rgb(var(--jade-aged))]">
+                  <span className="text-sm font-medium text-[rgb(var(--lime-medium))]">
                     {learnedCount}/{totalCount} ({percent}%)
                   </span>
                 </div>
@@ -197,10 +197,10 @@ export default function TreeView({ treeId }: { treeId: string }) {
           <div className="absolute inset-0 bg-[rgb(var(--background))]/60 flex items-center justify-center z-20 backdrop-blur-sm">
             <div className="bg-[rgb(var(--card))] rounded-2xl p-6 shadow-xl border border-[rgb(var(--border))] animate-ink-spread">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 border-2 border-[rgb(var(--jade-aged))]/30 border-t-[rgb(var(--jade-aged))] rounded-full animate-spin" />
+                <div className="w-8 h-8 border-2 border-[rgb(var(--lime-medium))]/30 border-t-[rgb(var(--lime-medium))] rounded-full animate-spin" />
                 <span
                   className="text-[rgb(var(--foreground))]"
-                  style={{ fontFamily: 'var(--font-noto-serif), serif' }}
+                  style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
                 >
                   Generating Quiz...
                 </span>
@@ -232,8 +232,8 @@ export default function TreeView({ treeId }: { treeId: string }) {
             className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg"
             nodeColor={(node) => {
               const data = node.data as unknown as SkillNodeData
-              if (data.status === 'learned') return 'rgb(var(--jade-aged))'
-              if (data.status === 'available') return 'rgb(var(--jade-pale))'
+              if (data.status === 'learned') return 'rgb(var(--lime-medium))'
+              if (data.status === 'available') return 'rgb(var(--lime-bright))'
               return 'rgb(var(--muted))'
             }}
             maskColor="rgb(var(--background))"

@@ -32,11 +32,11 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
     setTimeout(() => setCopied(false), 1500)
   }
 
-  // Jade tablet color scheme for Chinese levels
+  // Lime color scheme for Chinese levels
   const levelStyles: Record<string, string> = {
-    '入门': 'bg-[rgb(var(--jade-pale-bg))] text-[rgb(var(--jade-aged))] dark:bg-[rgb(var(--jade-pale-bg))] dark:text-[rgb(var(--jade-pale))]',
-    '进阶': 'bg-[rgb(var(--jade-aged-bg))] text-[rgb(var(--jade-aged))] dark:bg-[rgb(var(--jade-aged-bg))] dark:text-[rgb(var(--jade-aged))]',
-    '高级': 'bg-[rgb(var(--jade-red-bg))] text-[rgb(var(--jade-red))] dark:bg-[rgb(var(--jade-red-bg))] dark:text-[rgb(var(--jade-red))]',
+    '入门': 'bg-[rgb(var(--lime-bright-bg))] text-[rgb(var(--lime-dark))] dark:bg-[rgb(var(--lime-bright-bg))] dark:text-[rgb(var(--lime-bright))]',
+    '进阶': 'bg-[rgb(var(--lime-medium-bg))] text-[rgb(var(--lime-dark))] dark:bg-[rgb(var(--lime-medium-bg))] dark:text-[rgb(var(--lime-medium))]',
+    '高级': 'bg-[rgb(var(--lime-dark-bg))] text-[rgb(var(--lime-dark))] dark:bg-[rgb(var(--lime-dark-bg))] dark:text-[rgb(var(--lime-dark))]',
   }
 
   return (
@@ -48,10 +48,10 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
             {node.level}
           </span>
           {node.status === 'learned' && (
-            <span className="text-[rgb(var(--jade-aged))] text-xl font-bold">✓</span>
+            <span className="text-[rgb(var(--lime-medium))] text-xl font-bold">✓</span>
           )}
         </div>
-        <h2 className="text-lg font-bold text-[rgb(var(--foreground))] leading-tight" style={{ fontFamily: 'var(--font-noto-serif), serif' }}>
+        <h2 className="text-lg font-bold text-[rgb(var(--foreground))] leading-tight" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
           {node.name}
         </h2>
         <p className="text-[rgb(var(--muted-foreground))] text-sm mt-2 leading-relaxed">
@@ -62,7 +62,7 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
       {/* Resources */}
       {node.resources && node.resources.length > 0 && (
         <div className="p-5 border-b border-[rgb(var(--border))]">
-          <h3 className="font-semibold text-[rgb(var(--foreground))] mb-3 flex items-center gap-2" style={{ fontFamily: 'var(--font-noto-serif), serif' }}>
+          <h3 className="font-semibold text-[rgb(var(--foreground))] mb-3 flex items-center gap-2" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
             <span className="text-[rgb(var(--accent))]">◆</span> Resources
           </h3>
           <div className="space-y-2">
@@ -90,7 +90,7 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
       {/* Prerequisite Info */}
       {node.prerequisites && node.prerequisites.length > 0 && (
         <div className="p-5 border-b border-[rgb(var(--border))]">
-          <h3 className="font-semibold text-[rgb(var(--foreground))] mb-2 flex items-center gap-2" style={{ fontFamily: 'var(--font-noto-serif), serif' }}>
+          <h3 className="font-semibold text-[rgb(var(--foreground))] mb-2 flex items-center gap-2" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
             <span className="text-[rgb(var(--accent))]">◇</span> Prerequisites
           </h3>
           <p className="text-sm text-[rgb(var(--muted-foreground))]">
@@ -105,8 +105,8 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
           node.status === 'locked'
             ? 'bg-[rgb(var(--muted))] text-[rgb(var(--muted-foreground))]'
             : node.status === 'available'
-              ? 'bg-[rgb(var(--jade-aged-bg))] text-[rgb(var(--jade-aged))]'
-              : 'bg-[rgb(var(--jade-pale-bg))] text-[rgb(var(--jade-aged))]'
+              ? 'bg-[rgb(var(--lime-medium-bg))] text-[rgb(var(--lime-medium))]'
+              : 'bg-[rgb(var(--lime-bright-bg))] text-[rgb(var(--lime-medium))]'
         }`}>
           {node.status === 'locked' && '○ Locked'}
           {node.status === 'available' && '◉ Available'}
@@ -126,7 +126,7 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
             <button
               onClick={() => onDirectLight(node.id)}
               className="w-full py-3 bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/90 text-[rgb(var(--primary-foreground))] rounded-xl font-semibold transition-all hover:shadow-lg active:scale-[0.98] border border-[rgb(var(--border))]"
-              style={{ fontFamily: 'var(--font-noto-serif), serif' }}
+              style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
             >
               ◉ Mark as Mastered
             </button>
@@ -138,9 +138,9 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
             </button>
           </>
         ) : (
-          <div className="text-center py-6 bg-[rgb(var(--jade-pale-bg))]/50 rounded-xl">
-            <span className="text-[rgb(var(--jade-aged))] text-3xl mb-2 block font-bold">✓</span>
-            <p className="text-[rgb(var(--jade-aged))] font-semibold">Mastered!</p>
+          <div className="text-center py-6 bg-[rgb(var(--lime-bright-bg))]/50 rounded-xl">
+            <span className="text-[rgb(var(--lime-medium))] text-3xl mb-2 block font-bold">✓</span>
+            <p className="text-[rgb(var(--lime-medium))] font-semibold">Mastered!</p>
             <button
               onClick={() => onQuiz(node)}
               className="mt-3 text-sm text-[rgb(var(--accent))] hover:underline font-medium"

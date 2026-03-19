@@ -19,13 +19,13 @@
   --ring: 95, 110, 95;
   --radius: 0.75rem;
 
-  /* Jade node colors */
-  --jade-pale: 180, 200, 180;
-  --jade-pale-bg: 235, 245, 235;
-  --jade-aged: 100, 130, 110;
-  --jade-aged-bg: 230, 240, 232;
-  --jade-red: 140, 90, 80;
-  --jade-red-bg: 245, 235, 232;
+  /* Lime node colors */
+  --lime-bright: 180, 220, 80;
+  --lime-bright-bg: 240, 250, 200;
+  --lime-medium: 120, 180, 60;
+  --lime-medium-bg: 230, 245, 210;
+  --lime-dark: 80, 140, 40;
+  --lime-dark-bg: 220, 240, 200;
 }
 
 .dark {
@@ -46,13 +46,13 @@
   --border: 70, 65, 60;
   --ring: 130, 150, 130;
 
-  /* Jade node colors - dark theme */
-  --jade-pale: 130, 150, 130;
-  --jade-pale-bg: 40, 50, 45;
-  --jade-aged: 100, 130, 110;
-  --jade-aged-bg: 45, 55, 50;
-  --jade-red: 140, 90, 80;
-  --jade-red-bg: 55, 45, 42;
+  /* Lime node colors - dark theme */
+  --lime-bright: 150, 190, 100;
+  --lime-bright-bg: 40, 55, 30;
+  --lime-medium: 100, 150, 60;
+  --lime-medium-bg: 35, 50, 30;
+  --lime-dark: 80, 130, 50;
+  --lime-dark-bg: 30, 45, 25;
 }
 
 * {
@@ -62,7 +62,7 @@
 body {
   background-color: rgb(var(--background));
   color: rgb(var(--foreground));
-  font-family: var(--font-noto-serif), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Noto Serif', Georgia, 'Times New Roman', serif;
 }
 
 /* React Flow customizations */
@@ -149,10 +149,10 @@ html {
   50% { opacity: 0.5; transform: translateX(20px) scale(1.02); }
 }
 
-/* Jade glow for learned nodes */
-@keyframes jade-glow {
-  0%, 100% { box-shadow: 0 0 8px 2px rgba(95, 110, 95, 0.3); }
-  50% { box-shadow: 0 0 16px 4px rgba(95, 110, 95, 0.5); }
+/* Lime glow for learned nodes */
+@keyframes lime-glow {
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(120, 180, 60, 0.4); }
+  50% { box-shadow: 0 0 16px 4px rgba(120, 180, 60, 0.6); }
 }
 
 /* Gentle float */
@@ -181,8 +181,8 @@ html {
   animation: mist-drift 8s ease-in-out infinite;
 }
 
-.animate-jade-glow {
-  animation: jade-glow 3s ease-in-out infinite;
+.animate-lime-glow {
+  animation: lime-glow 3s ease-in-out infinite;
 }
 
 .animate-gentle-float {
@@ -220,16 +220,16 @@ html {
     radial-gradient(ellipse at 70% 80%, rgba(175, 100, 80, 0.06) 0%, transparent 50%);
 }
 
-/* Jade tablet styling for nodes */
-.jade-tablet {
+/* Lime tablet styling for nodes */
+.lime-tablet {
   background: linear-gradient(145deg, rgb(var(--card)), rgb(var(--secondary)));
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    inset 0 2px 4px rgba(255, 255, 255, 0.15),
     inset 0 -2px 4px rgba(0, 0, 0, 0.05),
     0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.dark .jade-tablet {
+.dark .lime-tablet {
   background: linear-gradient(145deg, rgb(var(--card)), rgb(var(--secondary)));
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.05),

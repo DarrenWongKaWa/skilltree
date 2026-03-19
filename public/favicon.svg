@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="lime" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B4Eeb4"/>
+      <stop offset="50%" stop-color="#7ed57e"/>
+      <stop offset="100%" stop-color="#50a050"/>
+    </linearGradient>
+    <linearGradient id="limeDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#50a050"/>
+      <stop offset="100%" stop-color="#2d6b2d"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer seal circle -->
+  <circle cx="16" cy="16" r="14" fill="none" stroke="url(#lime)" stroke-width="2"/>
+
+  <!-- Inner seal border -->
+  <circle cx="16" cy="16" r="12" fill="none" stroke="url(#lime)" stroke-width="0.5"/>
+
+  <!-- Inner decorative border -->
+  <circle cx="16" cy="16" r="10.5" fill="none" stroke="url(#limeDark)" stroke-width="0.3" stroke-dasharray="1,2"/>
+
+  <!-- Tree/wood character simplified -->
+  <text
+    x="16"
+    y="20"
+    font-family="serif"
+    font-size="11"
+    fill="url(#lime)"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-weight="bold"
+  >木</text>
+
+  <!-- Corner accents -->
+  <circle cx="16" cy="3.5" r="0.8" fill="url(#lime)"/>
+  <circle cx="16" cy="28.5" r="0.8" fill="url(#lime)"/>
+  <circle cx="3.5" cy="16" r="0.8" fill="url(#lime)"/>
+  <circle cx="28.5" cy="16" r="0.8" fill="url(#lime)"/>
+</svg>

@@ -50,7 +50,7 @@ export default function QuizModal({ quiz, onClose, onPass }: QuizModalProps) {
           <div className="flex items-center gap-3">
             <span className="text-2xl" style={{ fontFamily: 'var(--font-brush-chinese)' }}>◇</span>
             <div>
-              <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-noto-serif), serif' }}>{quiz.nodeName}</h2>
+              <h2 className="text-lg font-bold" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>{quiz.nodeName}</h2>
               <p className="text-[rgb(var(--primary-foreground))]/70 text-sm">
                 {submitted ? 'Your Answers' : 'Knowledge Quiz - Answer the questions below'}
               </p>
@@ -62,7 +62,7 @@ export default function QuizModal({ quiz, onClose, onPass }: QuizModalProps) {
         <div className="p-6 space-y-6 overflow-y-auto max-h-[50vh]">
           {quiz.questions.map((q, i) => (
             <div key={q.id} className="space-y-3">
-              <p className="font-medium text-[rgb(var(--foreground))]" style={{ fontFamily: 'var(--font-noto-serif), serif' }}>
+              <p className="font-medium text-[rgb(var(--foreground))]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[rgb(var(--secondary))] text-[rgb(var(--accent))] text-sm font-bold mr-2">
                   {i + 1}
                 </span>
@@ -85,9 +85,9 @@ export default function QuizModal({ quiz, onClose, onPass }: QuizModalProps) {
                           flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer
                           transition-all duration-200
                           ${showCorrect
-                            ? 'border-[rgb(var(--jade-aged))] bg-[rgb(var(--jade-aged-bg))]'
+                            ? 'border-[rgb(var(--lime-medium))] bg-[rgb(var(--lime-medium-bg))]'
                             : showWrong
-                              ? 'border-[rgb(var(--jade-red))] bg-[rgb(var(--jade-red-bg))]'
+                              ? 'border-[rgb(var(--lime-dark))] bg-[rgb(var(--lime-dark-bg))]'
                               : isSelected
                                 ? 'border-[rgb(var(--primary))] bg-[rgb(var(--secondary))]'
                                 : submitted
@@ -99,9 +99,9 @@ export default function QuizModal({ quiz, onClose, onPass }: QuizModalProps) {
                         <span className={`
                           flex items-center justify-center w-7 h-7 rounded-full text-sm font-bold
                           ${showCorrect
-                            ? 'bg-[rgb(var(--jade-aged))] text-[rgb(var(--primary-foreground))]'
+                            ? 'bg-[rgb(var(--lime-medium))] text-[rgb(var(--primary-foreground))]'
                             : showWrong
-                              ? 'bg-[rgb(var(--jade-red))] text-[rgb(var(--jade-red-bg))]'
+                              ? 'bg-[rgb(var(--lime-dark))] text-[rgb(var(--lime-dark-bg))]'
                               : isSelected
                                 ? 'bg-[rgb(var(--primary))] text-[rgb(var(--primary-foreground))]'
                                 : 'bg-[rgb(var(--secondary))] text-[rgb(var(--muted-foreground))]'
@@ -112,8 +112,8 @@ export default function QuizModal({ quiz, onClose, onPass }: QuizModalProps) {
                         <span className="text-sm text-[rgb(var(--foreground))] flex-1">
                           {opt}
                         </span>
-                        {showCorrect && <span className="text-[rgb(var(--jade-aged))]">✓</span>}
-                        {showWrong && <span className="text-[rgb(var(--jade-red))]">✗</span>}
+                        {showCorrect && <span className="text-[rgb(var(--lime-medium))]">✓</span>}
+                        {showWrong && <span className="text-[rgb(var(--lime-dark))]">✗</span>}
                         <input
                           type="radio"
                           name={q.id}
@@ -145,10 +145,10 @@ export default function QuizModal({ quiz, onClose, onPass }: QuizModalProps) {
               {submitted && result?.feedback?.[q.id] && (
                 <div className={`ml-2 p-3 rounded-xl text-sm ${
                   result.feedback[q.id].startsWith('✅')
-                    ? 'bg-[rgb(var(--jade-aged-bg))] text-[rgb(var(--jade-aged))] border border-[rgb(var(--jade-aged))]'
+                    ? 'bg-[rgb(var(--lime-medium-bg))] text-[rgb(var(--lime-medium))] border border-[rgb(var(--lime-medium))]'
                     : result.feedback[q.id].startsWith('👍')
-                      ? 'bg-[rgb(var(--jade-pale-bg))] text-[rgb(var(--jade-aged))] border border-[rgb(var(--jade-pale))]'
-                      : 'bg-[rgb(var(--jade-red-bg))] text-[rgb(var(--jade-red))] border border-[rgb(var(--jade-red))]'
+                      ? 'bg-[rgb(var(--lime-bright-bg))] text-[rgb(var(--lime-medium))] border border-[rgb(var(--lime-bright))]'
+                      : 'bg-[rgb(var(--lime-dark-bg))] text-[rgb(var(--lime-dark))] border border-[rgb(var(--lime-dark))]'
                 }`}>
                   <div className="flex items-start gap-2">
                     <span className="text-base mt-0.5">
@@ -166,8 +166,8 @@ export default function QuizModal({ quiz, onClose, onPass }: QuizModalProps) {
         {submitted && result && (
           <div className={`mx-6 mb-4 p-4 rounded-xl ${
             result.passed
-              ? 'bg-[rgb(var(--jade-aged-bg))] text-[rgb(var(--jade-aged))] border border-[rgb(var(--jade-aged))]'
-              : 'bg-[rgb(var(--jade-pale-bg))] text-[rgb(var(--muted-foreground))] border border-[rgb(var(--border))]'
+              ? 'bg-[rgb(var(--lime-medium-bg))] text-[rgb(var(--lime-medium))] border border-[rgb(var(--lime-medium))]'
+              : 'bg-[rgb(var(--lime-bright-bg))] text-[rgb(var(--muted-foreground))] border border-[rgb(var(--border))]'
           }`}>
             <div className="text-center">
               <p className="text-2xl mb-1" style={{ fontFamily: 'var(--font-brush-chinese)' }}>{result.passed ? '◉' : '○'}</p>
@@ -210,7 +210,7 @@ export default function QuizModal({ quiz, onClose, onPass }: QuizModalProps) {
               onClick={handleClose}
               className={`px-6 py-2.5 rounded-xl font-semibold text-[rgb(var(--primary-foreground))] shadow-lg transition-all hover:shadow-xl active:scale-[0.98] ${
                 result?.passed
-                  ? 'bg-[rgb(var(--jade-aged))]'
+                  ? 'bg-[rgb(var(--lime-medium))]'
                   : 'bg-[rgb(var(--primary))]'
               }`}
             >
