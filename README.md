@@ -60,46 +60,58 @@ Visit http://localhost:3000
 
 **https://skill-tree-rosy.vercel.app**
 
-## 📝 Project Structure
+## 📂 Project Structure
 
 ```
 skill-tree/
-├── app/
-│   ├── api/
-│   │   ├── generate/    # AI skill tree generation API
-│   │   ├── quiz/      # AI quiz generation API
-│   │   └── evaluate/   # Answer evaluation API
-│   ├── page.tsx       # Homepage
-│   └── tree/[id]/     # Skill tree detail page
-├── components/
-│   ├── TreeView.tsx      # Skill tree visualization
-│   ├── SkillNode.tsx    # Node component
-│   ├── NodeDetail.tsx   # Node detail sidebar
-│   ├── QuizModal.tsx    # Quiz modal
-│   ├── ThemeProvider.tsx # Theme context
-│   └── ThemeToggle.tsx   # Theme toggle button
-├── store/
-│   └── index.ts          # Zustand state management
-└── types/
-    └── index.ts          # TypeScript type definitions
+├── app/                          # Next.js App Router
+│   ├── api/                      # Backend API routes
+│   │   ├── generate/             # AI skill tree generation endpoint
+│   │   │   └── route.ts         # POST handler for tree generation
+│   │   ├── quiz/                # AI quiz generation endpoint
+│   │   └── evaluate/            # Answer evaluation endpoint
+│   ├── layout.tsx               # Root layout with theme provider
+│   ├── page.tsx                 # Landing page
+│   ├── globals.css              # Global styles
+│   └── tree/
+│       └── [id]/
+│           └── page.tsx         # Skill tree visualization page
+├── components/                  # React components
+│   ├── TreeView.tsx             # React Flow tree visualization
+│   ├── SkillNode.tsx            # Custom skill tree node
+│   ├── NodeDetail.tsx           # Node detail sidebar panel
+│   ├── QuizModal.tsx             # Quiz dialog modal
+│   ├── ThemeProvider.tsx         # Theme context provider
+│   └── ThemeToggle.tsx           # Dark/light mode toggle
+├── store/                        # State management
+│   └── index.ts                  # Zustand store for tree data
+├── lib/                          # Utility libraries
+├── types/                        # TypeScript type definitions
+│   └── index.ts                  # Shared type interfaces
+├── public/                       # Static assets
+└── package.json
 ```
 
-## 🔧 Development
+## ⚙️ Development
 
 ```bash
+# Clone repository
+git clone https://github.com/DarrenWongKaWa/skilltree.git
+cd skilltree
+
 # Install dependencies
 npm install
 
-# Development mode
+# Start development server
 npm run dev
 
 # Build for production
 npm run build
 
-# Run production build
+# Deploy to production
 npm start
 ```
 
-## 📄 License
+## 📜 License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
