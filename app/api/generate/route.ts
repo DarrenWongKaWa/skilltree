@@ -204,55 +204,71 @@ export async function POST(req: NextRequest) {
 }
 
 function assignOrganicPositions(nodes: any[]) {
+  const nodeMap: Record<string, any> = {}
+  nodes.forEach(n => nodeMap[n.id] = n)
+
+  // Use children array to build tree structure
+  const childMap: Record<string, string[]> = {}
+  nodes.forEach(n => childMap[n.id] = n.children || [])
+
+  // Find roots (nodes with no prerequisites)
   const roots = nodes.filter(n => !n.prerequisites?.length || n.prerequisites.length === 0)
 
-  const childrenMap: Record<string, string[]> = {}
-  nodes.forEach(n => {
-    childrenMap[n.id] = n.children || []
-  })
+  const LEVEL_HEIGHT = 150
+  const NODE_WIDTH = 220
+  const NODE_GAP = 40
 
-  const visited = new Set<string>()
+  // Compute subtree widths (bottom-up)
+  const widthCache: Record<string, number> = {}
 
-  function layoutNode(node: any, x: number, y: number, depth: number) {
-    if (visited.has(node.id)) return
-    visited.add(node.id)
+  function getSubtreeWidth(nodeId: string): number {
+    if (widthCache[nodeId] !== undefined) return widthCache[nodeId]
+    const children = childMap[nodeId] || []
+    if (children.length === 0) {
+      widthCache[nodeId] = NODE_WIDTH
+      return NODE_WIDTH
+    }
+    const childrenWidth = children.reduce((sum, cid) => sum + getSubtreeWidth(cid), 0)
+    const gapsWidth = (children.length - 1) * NODE_GAP
+    widthCache[nodeId] = Math.max(NODE_WIDTH, childrenWidth + gapsWidth)
+    return widthCache[nodeId]
+  }
 
-    const offsetX = (Math.random() - 0.5) * 60
-    const offsetY = Math.random() * 40
+  // Layout tree (top-down)
+  let globalX = 0
 
-    node.x = x + offsetX
-    node.y = y + offsetY
+  function layoutTree(nodeId: string, level: number, startX: number, width: number) {
+    const node = nodeMap[nodeId]
+    node.x = startX + width / 2 - NODE_WIDTH / 2
+    node.y = level * LEVEL_HEIGHT
 
-    const children = childrenMap[node.id] || []
+    const children = childMap[nodeId] || []
     if (children.length === 0) return
 
-    const spreadFactor = Math.min(depth * 30 + 80, 200)
-    const startX = x - spreadFactor / 2
-    const gap = spreadFactor / children.length
+    const childWidths = children.map(cid => getSubtreeWidth(cid))
+    const totalChildWidth = childWidths.reduce((a, b) => a + b, 0)
+    const totalGaps = (children.length - 1) * NODE_GAP
+    let childX = startX + (width - totalChildWidth - totalGaps) / 2
 
-    children.forEach((childId: string, i: number) => {
-      const child = nodes.find(n => n.id === childId)
-      if (!child || visited.has(childId)) return
-
-      const branchOffset = startX + i * gap + gap / 2
-      const newY = y + 140 + Math.random() * 80
-
-      layoutNode(child, branchOffset, newY, depth + 1)
+    children.forEach((childId, i) => {
+      layoutTree(childId, level + 1, childX, childWidths[i])
+      childX += childWidths[i] + NODE_GAP
     })
   }
 
-  const rootSpread = roots.length * 150
-  const startX = -rootSpread / 2
-
-  roots.forEach((root, i) => {
-    const x = startX + i * 150 + 75
-    layoutNode(root, x, 50, 0)
+  // Layout each root tree side by side
+  roots.forEach((root) => {
+    const treeWidth = getSubtreeWidth(root.id)
+    layoutTree(root.id, 0, globalX, treeWidth)
+    globalX += treeWidth + NODE_GAP * 3
   })
 
+  // Handle disconnected nodes
   nodes.forEach(node => {
-    if (!visited.has(node.id)) {
-      node.x = (Math.random() - 0.5) * 400
-      node.y = (Math.random() - 0.5) * 200 + 300
+    if (node.x === undefined) {
+      node.x = globalX
+      node.y = 0
+      globalX += NODE_WIDTH + NODE_GAP
     }
   })
 }
