@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* React Flow customizations */
+.react-flow__node {
+  cursor: pointer;
+}
+
+.react-flow__controls button {
+  background: white;
+  border-color: #e5e7eb;
+}
+
+.react-flow__controls button:hover {
+  background: #f9fafb;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
