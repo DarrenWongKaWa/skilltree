@@ -56,27 +56,9 @@ Visit http://localhost:3000
 4. **Test Mastery** - Use Quiz to verify your learning
 5. **Track Progress** - Click nodes to mark them as "learned"
 
-## 🎨 Interface Preview
+## 🎨 Live Demo
 
-```
-┌─────────────────────────────────────────────┐
-│  🔍 Enter learning topic...      [Generate] │
-├─────────────────────────────────────────────┤
-│                                             │
-│              ┌─────┐                        │
-│              │ Root │                       │
-│              └──┬──┘                        │
-│           ┌─────┼─────┐                     │
-│        ┌──┴──┐    ┌──┴──┐                   │
-│        │Child │    │Child │                  │
-│        └──┬──┘    └──┬──┘                   │
-│           │          │                      │
-│        ┌──┴──┐    ┌──┴──┐                   │
-│        │ Leaf │    │ Leaf │                 │
-│        └─────┘    └─────┘                   │
-│                                             │
-└─────────────────────────────────────────────┘
-```
+**https://skill-tree-rosy.vercel.app**
 
 ## 📝 Project Structure
 
