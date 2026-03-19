@@ -2,33 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const TREE_PROMPT = `You are a subject expert. User wants to learn: {topic}
 
-Generate a clear learning path (skill tree) with:
-1. 3-6 top-level main nodes, each with 2-4 child nodes
-2. Prerequisites for each node (only depends on more fundamental concepts)
-3. Difficulty level for each node (Beginner/Intermediate/Advanced)
-4. Core resources for each node (max 2 books + 1 website), must include real accessible URLs
-5. Overall description (within 50 characters)
+Generate a compact skill tree with:
+1. Exactly 3 top-level nodes, each with 2-3 child nodes
+2. Prerequisites, difficulty level (Beginner/Intermediate/Advanced)
+3. Core resources: 1 book + 1 website per node with real URLs
+4. Overall description (within 50 chars)
 
-Output strictly JSON format:
-{
-  "topic": "Topic name",
-  "description": "Overall description",
-  "nodes": [
-    {
-      "id": "uniqueID",
-      "name": "Node name",
-      "description": "Node description (within 30 characters)",
-      "level": "Beginner|Intermediate|Advanced",
-      "prerequisites": ["prerequisiteNodeID"],
-      "children": ["childNodeID"],
-      "resources": [{"title": "Book title", "url": "URL", "type": "book", "level": "Beginner|Intermediate|Advanced"}]
-    }
-  ],
-  "books": [{"title": "Book title", "author": "Author", "url": "URL", "type": "book", "level": "Beginner|Intermediate|Advanced"}],
-  "websites": [{"title": "Website name", "url": "URL", "type": "website"}]
-}
+JSON format:
+{"topic":"Name","description":"Desc","nodes":[{"id":"id","name":"Name","description":"Desc","level":"Beginner|Intermediate|Advanced","prerequisites":["id"],"children":["id"],"resources":[{"title":"T","url":"https://...","type":"book"}]}],"books":[{"title":"T","author":"A","url":"https://..."}],"websites":[{"title":"T","url":"https://..."}]}
 
-Output JSON only, no other text.`
+JSON only, no explanation.`
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,8 +30,8 @@ export async function POST(req: NextRequest) {
           { role: 'system', content: 'You are a subject expert. Output JSON only, no other text.' },
           { role: 'user', content: TREE_PROMPT.replace('{topic}', topic) }
         ],
-        temperature: 0.7,
-        max_tokens: 4000
+        temperature: 0.3,
+        max_tokens: 8000
       })
     })
 
