@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌳 SkillTree - AI 驱动的技能树学习平台
 
-## Getting Started
+一个基于 AI 的交互式技能树学习工具，帮助你系统化地规划学习路径。
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-16.2-black)
+![React](https://img.shields.io/badge/React-Flow-FF6B6B)
+![MiniMax](https://img.shields.io/badge/AI-MiniMax-6366F1)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## ✨ 功能特点
+
+- **🤖 AI 生成技能树** - 输入任意主题，AI 自动生成完整的知识图谱
+- **📚 结构化学习路径** - 清晰的前置依赖关系，从入门到精通
+- **❓ 智能Quiz** - 点击节点即可生成针对性练习题
+- **🎯 节点状态追踪** - 标记掌握程度，追踪学习进度
+- **📱 响应式设计** - 支持手机、平板、电脑多端访问
+
+## 🛠️ 技术栈
+
+- **框架**: Next.js 16 (App Router)
+- **UI 组件**: React Flow (流程图可视化)
+- **状态管理**: Zustand
+- **样式**: Tailwind CSS
+- **AI 模型**: MiniMax-M2.7
+
+## 🚀 快速部署
+
+### 1. 环境变量配置
+
+在 Vercel 或本地 `.env.local` 中设置：
+
+```env
+MINIMAX_API_KEY=your_api_key
+MINIMAX_BASE_URL=https://api.minimaxi.com/v1
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. 本地运行
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+git clone https://github.com/DarrenWongKaWa/skilltree.git
+cd skilltree
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+访问 http://localhost:3000
 
-## Learn More
+### 3. Vercel 部署
 
-To learn more about Next.js, take a look at the following resources:
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/DarrenWongKaWa/skilltree)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📖 使用指南
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **生成技能树** - 在首页输入想学习的主题（如"Python"、"机器学习"）
+2. **探索知识图谱** - 缩放、拖拽节点查看完整结构
+3. **开始学习** - 点击节点查看详情和资源推荐
+4. **测试掌握** - 使用 Quiz 功能检验学习效果
+5. **标记进度** - 点击节点标记为"已学"
 
-## Deploy on Vercel
+## 🎨 界面预览
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+┌─────────────────────────────────────────────┐
+│  🔍 输入学习主题...              [生成]    │
+├─────────────────────────────────────────────┤
+│                                             │
+│              ┌─────┐                        │
+│              │ 根节点 │                       │
+│              └──┬──┘                        │
+│           ┌─────┼─────┐                     │
+│        ┌──┴──┐    ┌──┴──┐                   │
+│        │子节点│    │子节点│                  │
+│        └──┬──┘    └──┬──┘                   │
+│           │          │                      │
+│        ┌──┴──┐    ┌──┴──┐                   │
+│        │叶节点│    │叶节点│                  │
+│        └─────┘    └─────┘                   │
+│                                             │
+└─────────────────────────────────────────────┘
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📝 项目结构
+
+```
+skill-tree/
+├── app/
+│   ├── api/
+│   │   ├── generate/    # AI 生成技能树 API
+│   │   ├── quiz/        # AI 出题 API
+│   │   └── evaluate/    # 答案评估 API
+│   ├── page.tsx         # 首页
+│   └── tree/[id]/       # 技能树详情页
+├── components/
+│   ├── TreeView.tsx      # 技能树可视化
+│   ├── SkillNode.tsx     # 节点组件
+│   └── QuizModal.tsx     # Quiz 弹窗
+├── store/
+│   └── index.ts          # Zustand 状态管理
+└── types/
+    └── index.ts          # TypeScript 类型定义
+```
+
+## 🔧 开发
+
+```bash
+# 安装依赖
+npm install
+
+# 开发模式
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 运行生产版本
+npm start
+```
+
+## 📄 License
+
+MIT
