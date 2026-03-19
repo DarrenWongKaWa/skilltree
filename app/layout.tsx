@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'SkillTree - 技能树学习引擎',
-  description: '输入任何你想学习的主题，快速生成学习路径和技能树',
+  title: 'SkillTree - AI Skill Tree Learning Engine',
+  description: 'AI-powered interactive skill tree learning platform for systematic learning path planning',
 }
 
 export default function RootLayout({
@@ -12,8 +13,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   )
 }

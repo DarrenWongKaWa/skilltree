@@ -10,7 +10,7 @@ const TreeView = dynamic(() => import('@/components/TreeView'), {
     <div className="flex items-center justify-center h-screen">
       <div className="text-center">
         <div className="text-4xl mb-4">🧠</div>
-        <p className="text-gray-500">加载技能树...</p>
+        <p className="text-stone-500 dark:text-stone-400">Loading skill tree...</p>
       </div>
     </div>
   )

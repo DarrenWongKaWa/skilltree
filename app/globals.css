@@ -1,13 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
+  /* Light theme (default) */
+  --foreground: 15, 23, 42;
+  --background: 255, 255, 255;
+  --card: 255, 255, 255;
+  --card-foreground: 15, 23, 42;
+  --primary: 59, 130, 246;
+  --primary-foreground: 255, 255, 255;
+  --secondary: 241, 245, 249;
+  --secondary-foreground: 15, 23, 42;
+  --muted: 241, 245, 249;
+  --muted-foreground: 100, 116, 139;
+  --accent: 168, 85, 247;
+  --accent-foreground: 255, 255, 255;
+  --destructive: 239, 68, 68;
+  --border: 226, 232, 240;
+  --ring: 59, 130, 246;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --foreground: 248, 250, 252;
+  --background: 15, 23, 42;
+  --card: 30, 41, 59;
+  --card-foreground: 248, 250, 252;
+  --primary: 96, 165, 250;
+  --primary-foreground: 15, 23, 42;
+  --secondary: 51, 65, 85;
+  --secondary-foreground: 248, 250, 252;
+  --muted: 51, 65, 85;
+  --muted-foreground: 148, 163, 184;
+  --accent: 168, 85, 247;
+  --accent-foreground: 255, 255, 255;
+  --destructive: 248, 113, 113;
+  --border: 51, 65, 85;
+  --ring: 96, 165, 250;
+}
+
+* {
+  border-color: rgb(var(--border));
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -17,15 +54,87 @@ body {
 }
 
 .react-flow__controls button {
-  background: white;
-  border-color: #e5e7eb;
+  background: rgb(var(--card));
+  border-color: rgb(var(--border));
 }
 
 .react-flow__controls button:hover {
-  background: #f9fafb;
+  background: rgb(var(--secondary));
 }
 
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--muted-foreground));
+}
+
+/* Animation keyframes */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-float {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Button press effect */
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+  background: rgba(30, 41, 59, 0.8);
 }

@@ -15,8 +15,13 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
 
   if (!node) {
     return (
-      <div className="w-80 bg-gray-50 border-l border-gray-200 flex items-center justify-center">
-        <p className="text-gray-400 text-sm">👈 点击节点查看详情</p>
+      <div className="w-80 bg-stone-50/80 dark:bg-slate-800/80 backdrop-blur-sm border-l border-stone-200 dark:border-slate-700 flex items-center justify-center">
+        <div className="text-center px-6">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-stone-100 dark:bg-slate-700 flex items-center justify-center">
+            <span className="text-3xl">👈</span>
+          </div>
+          <p className="text-stone-500 dark:text-stone-400 text-sm">Click a node to view details</p>
+        </div>
       </div>
     )
   }
@@ -27,31 +32,38 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
     setTimeout(() => setCopied(false), 1500)
   }
 
+  const levelStyles: Record<string, string> = {
+    'Beginner': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400',
+    'Intermediate': 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400',
+    'Advanced': 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-400',
+  }
+
   return (
-    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+    <div className="w-80 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border-l border-stone-200 dark:border-slate-700 overflow-y-auto animate-slide-in-right">
       {/* Header */}
-      <div className="p-5 border-b border-gray-100">
-        <div className="flex items-start justify-between">
-          <div>
-            <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium mb-2
-              ${node.level === '入门' ? 'bg-green-100 text-green-700' :
-                node.level === '进阶' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-red-100 text-red-700'}`}>
-              {node.level}
-            </span>
-            <h2 className="text-lg font-bold text-gray-900">{node.name}</h2>
-          </div>
+      <div className="p-5 border-b border-stone-100 dark:border-slate-700/50">
+        <div className="flex items-start justify-between mb-3">
+          <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-medium ${levelStyles[node.level] || levelStyles['Beginner']}`}>
+            {node.level}
+          </span>
           {node.status === 'learned' && (
-            <span className="text-2xl">✅</span>
+            <span className="text-2xl">🎉</span>
           )}
         </div>
-        <p className="text-gray-600 text-sm mt-2">{node.description}</p>
+        <h2 className="text-lg font-bold text-stone-800 dark:text-stone-100 leading-tight">
+          {node.name}
+        </h2>
+        <p className="text-stone-500 dark:text-stone-400 text-sm mt-2 leading-relaxed">
+          {node.description}
+        </p>
       </div>
 
       {/* Resources */}
       {node.resources && node.resources.length > 0 && (
-        <div className="p-5 border-b border-gray-100">
-          <h3 className="font-semibold text-gray-800 mb-3">📚 相关资源</h3>
+        <div className="p-5 border-b border-stone-100 dark:border-slate-700/50">
+          <h3 className="font-semibold text-stone-700 dark:text-stone-200 mb-3 flex items-center gap-2">
+            <span className="text-lg">📚</span> Resources
+          </h3>
           <div className="space-y-2">
             {node.resources.map((r, i) => (
               <a
@@ -59,10 +71,15 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
                 href={r.url || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-stone-50 dark:hover:bg-slate-700/50 transition-colors group"
               >
-                <span className="text-sm">{r.type === 'book' ? '📖' : '🌐'}</span>
-                <span className="text-sm text-blue-600 hover:underline flex-1">{r.title}</span>
+                <span className="text-base">{r.type === 'book' ? '📖' : '🌐'}</span>
+                <span className="text-sm text-blue-600 dark:text-blue-400 group-hover:underline flex-1 leading-tight">
+                  {r.title}
+                </span>
+                {r.author && (
+                  <span className="text-xs text-stone-400">{r.author}</span>
+                )}
               </a>
             ))}
           </div>
@@ -71,44 +88,62 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
 
       {/* Prerequisite Info */}
       {node.prerequisites && node.prerequisites.length > 0 && (
-        <div className="p-5 border-b border-gray-100">
-          <h3 className="font-semibold text-gray-800 mb-2">🔗 前置技能</h3>
-          <p className="text-sm text-gray-500">
-            需要先点亮 {node.prerequisites.length} 个前置技能
+        <div className="p-5 border-b border-stone-100 dark:border-slate-700/50">
+          <h3 className="font-semibold text-stone-700 dark:text-stone-200 mb-2 flex items-center gap-2">
+            <span className="text-lg">🔗</span> Prerequisites
+          </h3>
+          <p className="text-sm text-stone-500 dark:text-stone-400">
+            Complete {node.prerequisites.length} prerequisite{node.prerequisites.length > 1 ? 's' : ''} first
           </p>
         </div>
       )}
 
+      {/* Status badge */}
+      <div className="p-5 border-b border-stone-100 dark:border-slate-700/50">
+        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
+          node.status === 'locked'
+            ? 'bg-stone-100 text-stone-500 dark:bg-slate-700 dark:text-stone-400'
+            : node.status === 'available'
+              ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400'
+              : 'bg-green-100 text-green-600 dark:bg-green-900/50 dark:text-green-400'
+        }`}>
+          {node.status === 'locked' && '🔒 Locked'}
+          {node.status === 'available' && '✨ Available'}
+          {node.status === 'learned' && '✓ Learned'}
+        </div>
+      </div>
+
       {/* Actions */}
       <div className="p-5 space-y-3">
         {node.status === 'locked' ? (
-          <div className="text-center py-4 text-gray-400">
-            <p className="text-sm">🔒 请先完成前置技能</p>
+          <div className="text-center py-6 bg-stone-50 dark:bg-slate-700/30 rounded-xl">
+            <span className="text-3xl mb-2 block">🔒</span>
+            <p className="text-stone-500 dark:text-stone-400 text-sm">Complete prerequisites first</p>
           </div>
         ) : node.status === 'available' ? (
           <>
             <button
               onClick={() => onDirectLight(node.id)}
-              className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors"
+              className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl font-semibold transition-all hover:shadow-lg active:scale-[0.98]"
             >
-              ✨ 直接点亮
+              ✨ Mark as Learned
             </button>
             <button
               onClick={() => onQuiz(node)}
-              className="w-full py-3 bg-white border-2 border-purple-500 text-purple-600 rounded-xl font-medium hover:bg-purple-50 transition-colors"
+              className="w-full py-3 bg-white dark:bg-slate-700 border-2 border-purple-500 dark:border-purple-400 text-purple-600 dark:text-purple-300 rounded-xl font-semibold hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all"
             >
-              📝 答题验证
+              📝 Take Quiz
             </button>
           </>
         ) : (
-          <div className="text-center py-4">
-            <span className="text-3xl mb-2 block">🎉</span>
-            <p className="text-green-600 font-medium">已点亮！</p>
+          <div className="text-center py-6 bg-green-50 dark:bg-green-900/30 rounded-xl">
+            <span className="text-4xl mb-2 block">🎉</span>
+            <p className="text-green-600 dark:text-green-400 font-semibold">Learned!</p>
             <button
               onClick={() => onQuiz(node)}
-              className="mt-3 text-sm text-purple-600 hover:underline"
+              className="mt-3 text-sm text-purple-600 dark:text-purple-400 hover:underline font-medium"
             >
-              再测一次 →
+              Try Again →
             </button>
           </div>
         )}
@@ -118,9 +153,9 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
       <div className="p-5 pt-0">
         <button
           onClick={handleCopyDescription}
-          className="w-full py-2 text-xs text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg"
+          className="w-full py-2.5 text-sm text-stone-500 dark:text-stone-400 border border-stone-200 dark:border-slate-600 rounded-xl hover:bg-stone-50 dark:hover:bg-slate-700/50 transition-colors"
         >
-          {copied ? '✓ 已复制' : '📋 复制描述'}
+          {copied ? '✓ Copied!' : '📋 Copy Description'}
         </button>
       </div>
     </div>
