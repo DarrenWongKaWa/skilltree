@@ -36,14 +36,14 @@ export async function POST(req: NextRequest) {
     })
 
     if (!response.ok) {
-      return NextResponse.json({ error: 'MiniMax API错误: ' + response.status }, { status: 500 })
+      return NextResponse.json({ error: 'MiniMax API error: ' + response.status }, { status: 500 })
     }
 
     const data = await response.json()
     const rawContent = data.choices?.[0]?.message?.content
 
     if (!rawContent) {
-      return NextResponse.json({ error: 'API返回内容为空' }, { status: 500 })
+      return NextResponse.json({ error: 'API returned empty content' }, { status: 500 })
     }
 
     const content = String(rawContent)
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!potentialJson) {
-      return NextResponse.json({ error: '无法找到有效JSON' }, { status: 500 })
+      return NextResponse.json({ error: 'Could not find valid JSON' }, { status: 500 })
     }
 
     // Try to parse the JSON
@@ -155,13 +155,13 @@ export async function POST(req: NextRequest) {
           .trim()
         tree = JSON.parse(fixed)
       } catch (e2) {
-        return NextResponse.json({ error: 'JSON解析错误' }, { status: 500 })
+        return NextResponse.json({ error: 'JSON parsing error' }, { status: 500 })
       }
     }
 
     // Validate structure
     if (!tree.nodes || !Array.isArray(tree.nodes) || tree.nodes.length === 0) {
-      return NextResponse.json({ error: '生成的JSON结构不符合要求' }, { status: 500 })
+      return NextResponse.json({ error: 'Generated JSON structure does not meet requirements' }, { status: 500 })
     }
 
     // Assign positions for ReactFlow
@@ -182,7 +182,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ tree })
   } catch (error) {
     console.error('Generate error:', error)
-    return NextResponse.json({ error: '生成失败' }, { status: 500 })
+    return NextResponse.json({ error: 'Generation failed' }, { status: 500 })
   }
 }
 

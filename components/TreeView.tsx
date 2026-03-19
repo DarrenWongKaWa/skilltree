@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ReactFlow,
@@ -18,10 +18,12 @@ import '@xyflow/react/dist/style.css'
 import { useStore } from '@/store'
 import SkillNodeComponent from '@/components/SkillNode'
 import NodeDetail from '@/components/NodeDetail'
-import QuizModal from '@/components/QuizModal'
 import ThemeToggle from '@/components/ThemeToggle'
 import { generateQuiz } from '@/lib/api'
-import type { SkillNodeData, Quiz, SkillTree } from '@/types'
+import type { SkillNodeData, SkillTree, Quiz } from '@/types'
+
+// Lazy load QuizModal for performance
+const QuizModal = lazy(() => import('@/components/QuizModal'))
 
 const nodeTypes = { skill: SkillNodeComponent }
 
@@ -245,6 +247,7 @@ export default function TreeView({ treeId }: { treeId: string }) {
           <img
             src="/ink-wash-mountains.svg"
             alt=""
+            loading="lazy"
             className="w-full h-full object-cover opacity-20 dark:opacity-10"
           />
         </div>
@@ -258,13 +261,24 @@ export default function TreeView({ treeId }: { treeId: string }) {
         onDirectLight={handleDirectLight}
       />
 
-      {/* Quiz Modal */}
+      {/* Quiz Modal - lazy loaded */}
       {quiz && (
-        <QuizModal
-          quiz={quiz}
-          onClose={() => setQuiz(null)}
-          onPass={handleQuizPass}
-        />
+        <Suspense fallback={
+          <div className="fixed inset-0 bg-[rgb(var(--background))]/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-[rgb(var(--card))] rounded-2xl p-6 shadow-xl border border-[rgb(var(--border))]">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 border-2 border-[rgb(var(--lime-medium))]/30 border-t-[rgb(var(--lime-medium))] rounded-full animate-spin" />
+                <span className="text-[rgb(var(--foreground))]">Loading...</span>
+              </div>
+            </div>
+          </div>
+        }>
+          <QuizModal
+            quiz={quiz}
+            onClose={() => setQuiz(null)}
+            onPass={handleQuizPass}
+          />
+        </Suspense>
       )}
     </div>
   )

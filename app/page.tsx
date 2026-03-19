@@ -50,6 +50,7 @@ export default function HomePage() {
         <img
           src="/ink-wash-mountains.svg"
           alt=""
+          loading="lazy"
           className="w-full h-full object-cover opacity-30 dark:opacity-15 animate-mist-drift"
         />
       </div>
@@ -89,11 +90,11 @@ export default function HomePage() {
             className="text-4xl md:text-5xl font-bold mb-4 tracking-tight"
             style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
           >
-            <span className="text-[rgb(var(--foreground))]">悟</span>
+            <span className="text-[rgb(var(--foreground))]">Learn</span>
             <span className="text-[rgb(var(--muted-foreground))] mx-3">·</span>
-            <span className="text-[rgb(var(--foreground))]">修</span>
+            <span className="text-[rgb(var(--foreground))]">Practice</span>
             <span className="text-[rgb(var(--muted-foreground))] mx-3">·</span>
-            <span className="text-[rgb(var(--foreground))]">行</span>
+            <span className="text-[rgb(var(--foreground))]">Master</span>
           </h2>
           <p
             className="text-lg text-[rgb(var(--muted-foreground))] max-w-xl mx-auto mb-8"
