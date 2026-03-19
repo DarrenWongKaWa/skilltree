@@ -1,4 +1,4 @@
-export type NodeLevel = '入门' | '进阶' | '高级'
+export type NodeLevel = 'Beginner' | 'Intermediate' | 'Advanced'
 export type NodeStatus = 'locked' | 'available' | 'learned'
 export type ResourceType = 'book' | 'website' | 'video' | 'course'
 

@@ -32,11 +32,11 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
     setTimeout(() => setCopied(false), 1500)
   }
 
-  // Lime color scheme for Chinese levels
+  // Lime color scheme for levels
   const levelStyles: Record<string, string> = {
-    '入门': 'bg-[rgb(var(--lime-bright-bg))] text-[rgb(var(--lime-dark))] dark:bg-[rgb(var(--lime-bright-bg))] dark:text-[rgb(var(--lime-bright))]',
-    '进阶': 'bg-[rgb(var(--lime-medium-bg))] text-[rgb(var(--lime-dark))] dark:bg-[rgb(var(--lime-medium-bg))] dark:text-[rgb(var(--lime-medium))]',
-    '高级': 'bg-[rgb(var(--lime-dark-bg))] text-[rgb(var(--lime-dark))] dark:bg-[rgb(var(--lime-dark-bg))] dark:text-[rgb(var(--lime-dark))]',
+    'Beginner': 'bg-[rgb(var(--lime-bright-bg))] text-[rgb(var(--lime-dark))] dark:bg-[rgb(var(--lime-bright-bg))] dark:text-[rgb(var(--lime-bright))]',
+    'Intermediate': 'bg-[rgb(var(--lime-medium-bg))] text-[rgb(var(--lime-dark))] dark:bg-[rgb(var(--lime-medium-bg))] dark:text-[rgb(var(--lime-medium))]',
+    'Advanced': 'bg-[rgb(var(--lime-dark-bg))] text-[rgb(var(--lime-dark))] dark:bg-[rgb(var(--lime-dark-bg))] dark:text-[rgb(var(--lime-dark))]',
   }
 
   return (
@@ -44,7 +44,7 @@ export default function NodeDetail({ node, onLearn, onQuiz, onDirectLight }: Nod
       {/* Header - scroll banner style */}
       <div className="p-5 border-b border-[rgb(var(--border))] bg-[rgb(var(--secondary))]/30">
         <div className="flex items-start justify-between mb-3">
-          <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-medium ${levelStyles[node.level] || levelStyles['入门']}`}>
+          <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-medium ${levelStyles[node.level] || levelStyles['Beginner']}`}>
             {node.level}
           </span>
           {node.status === 'learned' && (

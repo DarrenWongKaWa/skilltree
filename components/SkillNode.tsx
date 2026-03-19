@@ -7,21 +7,21 @@ import type { SkillNodeData } from '@/types'
 
 // Lime color scheme - fresh green tones
 const levelColors = {
-  '入门': {
+  'Beginner': {
     bg: 'bg-[rgb(var(--lime-bright-bg))] dark:bg-[rgb(var(--lime-bright-bg))]',
     border: 'border-[rgb(var(--lime-bright))] dark:border-[rgb(var(--lime-bright))]',
     text: 'text-[rgb(var(--lime-dark))] dark:text-[rgb(var(--lime-bright))]',
     dot: 'bg-[rgb(var(--lime-bright))]',
     glow: 'hover:shadow-[0_0_12px_rgba(180,220,80,0.5)] dark:hover:shadow-[0_0_12px_rgba(150,190,100,0.4)]',
   },
-  '进阶': {
+  'Intermediate': {
     bg: 'bg-[rgb(var(--lime-medium-bg))] dark:bg-[rgb(var(--lime-medium-bg))]',
     border: 'border-[rgb(var(--lime-medium))] dark:border-[rgb(var(--lime-medium))]',
     text: 'text-[rgb(var(--lime-dark))] dark:text-[rgb(var(--lime-medium))]',
     dot: 'bg-[rgb(var(--lime-medium))]',
     glow: 'hover:shadow-[0_0_12px_rgba(120,180,60,0.5)] dark:hover:shadow-[0_0_12px_rgba(100,150,60,0.4)]',
   },
-  '高级': {
+  'Advanced': {
     bg: 'bg-[rgb(var(--lime-dark-bg))] dark:bg-[rgb(var(--lime-dark-bg))]',
     border: 'border-[rgb(var(--lime-dark))] dark:border-[rgb(var(--lime-dark))]',
     text: 'text-[rgb(var(--lime-dark))] dark:text-[rgb(var(--lime-dark))]',
@@ -53,7 +53,7 @@ const statusStyles = {
 
 function SkillNodeComponent(props: NodeProps) {
   const data = props.data as unknown as SkillNodeData
-  const colors = levelColors[data.level as keyof typeof levelColors] || levelColors['入门']
+  const colors = levelColors[data.level as keyof typeof levelColors] || levelColors['Beginner']
   const status = statusStyles[data.status] || statusStyles.available
   const isLearned = data.status === 'learned'
   const isLocked = data.status === 'locked'
