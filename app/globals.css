@@ -1,41 +1,58 @@
 @import "tailwindcss";
 
 :root {
-  /* Light theme (default) */
-  --foreground: 15, 23, 42;
-  --background: 255, 255, 255;
-  --card: 255, 255, 255;
-  --card-foreground: 15, 23, 42;
-  --primary: 59, 130, 246;
-  --primary-foreground: 255, 255, 255;
-  --secondary: 241, 245, 249;
-  --secondary-foreground: 15, 23, 42;
-  --muted: 241, 245, 249;
-  --muted-foreground: 100, 116, 139;
-  --accent: 168, 85, 247;
-  --accent-foreground: 255, 255, 255;
-  --destructive: 239, 68, 68;
-  --border: 226, 232, 240;
-  --ring: 59, 130, 246;
+  /* Light theme - Rice Paper 宣纸 */
+  --foreground: 60, 50, 40;
+  --background: 245, 240, 230;
+  --card: 250, 245, 235;
+  --card-foreground: 60, 50, 40;
+  --primary: 95, 110, 95;
+  --primary-foreground: 250, 245, 235;
+  --secondary: 230, 220, 205;
+  --secondary-foreground: 60, 50, 40;
+  --muted: 215, 205, 190;
+  --muted-foreground: 120, 105, 90;
+  --accent: 175, 100, 80;
+  --accent-foreground: 250, 245, 235;
+  --destructive: 160, 70, 60;
+  --border: 200, 185, 170;
+  --ring: 95, 110, 95;
   --radius: 0.75rem;
+
+  /* Jade node colors */
+  --jade-pale: 180, 200, 180;
+  --jade-pale-bg: 235, 245, 235;
+  --jade-aged: 100, 130, 110;
+  --jade-aged-bg: 230, 240, 232;
+  --jade-red: 140, 90, 80;
+  --jade-red-bg: 245, 235, 232;
 }
 
 .dark {
-  --foreground: 248, 250, 252;
-  --background: 15, 23, 42;
-  --card: 30, 41, 59;
-  --card-foreground: 248, 250, 252;
-  --primary: 96, 165, 250;
-  --primary-foreground: 15, 23, 42;
-  --secondary: 51, 65, 85;
-  --secondary-foreground: 248, 250, 252;
-  --muted: 51, 65, 85;
-  --muted-foreground: 148, 163, 184;
-  --accent: 168, 85, 247;
-  --accent-foreground: 255, 255, 255;
-  --destructive: 248, 113, 113;
-  --border: 51, 65, 85;
-  --ring: 96, 165, 250;
+  /* Dark theme - Ink Night 墨夜 */
+  --foreground: 220, 215, 205;
+  --background: 35, 30, 28;
+  --card: 45, 40, 38;
+  --card-foreground: 220, 215, 205;
+  --primary: 130, 150, 130;
+  --primary-foreground: 35, 30, 28;
+  --secondary: 55, 50, 48;
+  --secondary-foreground: 220, 215, 205;
+  --muted: 80, 75, 70;
+  --muted-foreground: 160, 150, 140;
+  --accent: 185, 120, 100;
+  --accent-foreground: 220, 215, 205;
+  --destructive: 180, 90, 80;
+  --border: 70, 65, 60;
+  --ring: 130, 150, 130;
+
+  /* Jade node colors - dark theme */
+  --jade-pale: 130, 150, 130;
+  --jade-pale-bg: 40, 50, 45;
+  --jade-aged: 100, 130, 110;
+  --jade-aged-bg: 45, 55, 50;
+  --jade-red: 140, 90, 80;
+  --jade-red-bg: 55, 45, 42;
 }
 
 * {
@@ -45,7 +62,7 @@
 body {
   background-color: rgb(var(--background));
   color: rgb(var(--foreground));
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-noto-serif), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* React Flow customizations */
@@ -56,10 +73,23 @@ body {
 .react-flow__controls button {
   background: rgb(var(--card));
   border-color: rgb(var(--border));
+  color: rgb(var(--foreground));
 }
 
 .react-flow__controls button:hover {
   background: rgb(var(--secondary));
+}
+
+.react-flow__edge-path {
+  stroke: rgb(var(--muted-foreground));
+  stroke-width: 2;
+  opacity: 0.6;
+}
+
+.react-flow__minimap {
+  background: rgb(var(--card));
+  border: 1px solid rgb(var(--border));
+  border-radius: var(--radius);
 }
 
 /* Smooth scroll */
@@ -67,26 +97,29 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - bamboo/wood style */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgb(var(--secondary));
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgb(var(--border));
-  border-radius: 3px;
+  background: rgb(var(--muted-foreground));
+  border-radius: 4px;
+  border: 2px solid rgb(var(--secondary));
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--muted-foreground));
+  background: rgb(var(--accent));
 }
 
-/* Animation keyframes */
+/* ========== Ancient Animations ========== */
+
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -97,9 +130,35 @@ html {
   to { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+/* Ink spread - like ink bleeding into rice paper */
+@keyframes ink-spread {
+  0% { opacity: 0; transform: scale(0.95); filter: blur(4px); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+/* Bamboo sway - gentle, meditative */
+@keyframes bamboo-sway {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  25% { transform: rotate(0.5deg) translateX(1px); }
+  75% { transform: rotate(-0.5deg) translateX(-1px); }
+}
+
+/* Mist drift - slow, ethereal */
+@keyframes mist-drift {
+  0%, 100% { opacity: 0.3; transform: translateX(0) scale(1); }
+  50% { opacity: 0.5; transform: translateX(20px) scale(1.02); }
+}
+
+/* Jade glow for learned nodes */
+@keyframes jade-glow {
+  0%, 100% { box-shadow: 0 0 8px 2px rgba(95, 110, 95, 0.3); }
+  50% { box-shadow: 0 0 16px 4px rgba(95, 110, 95, 0.5); }
+}
+
+/* Gentle float */
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 .animate-fade-in {
@@ -110,17 +169,24 @@ html {
   animation: slide-in-right 0.3s ease-out forwards;
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 2s infinite;
+.animate-ink-spread {
+  animation: ink-spread 0.6s ease-out forwards;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+.animate-bamboo-sway {
+  animation: bamboo-sway 4s ease-in-out infinite;
 }
 
-.animate-float {
-  animation: float 2s ease-in-out infinite;
+.animate-mist-drift {
+  animation: mist-drift 8s ease-in-out infinite;
+}
+
+.animate-jade-glow {
+  animation: jade-glow 3s ease-in-out infinite;
+}
+
+.animate-gentle-float {
+  animation: gentle-float 3s ease-in-out infinite;
 }
 
 /* Button press effect */
@@ -128,13 +194,45 @@ html {
   transform: scale(0.97);
 }
 
-/* Glass effect */
+/* Glass effect - aged parchment variant */
 .glass {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(250, 245, 235, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
 .dark .glass {
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(45, 40, 38, 0.85);
+}
+
+/* Paper texture backgrounds */
+.bg-rice-paper {
+  background-color: rgb(var(--background));
+  background-image:
+    radial-gradient(ellipse at 20% 30%, rgba(200, 185, 170, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(175, 100, 80, 0.08) 0%, transparent 50%);
+}
+
+.bg-parchment {
+  background-color: rgb(var(--card));
+  background-image:
+    radial-gradient(ellipse at 30% 20%, rgba(200, 185, 170, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(175, 100, 80, 0.06) 0%, transparent 50%);
+}
+
+/* Jade tablet styling for nodes */
+.jade-tablet {
+  background: linear-gradient(145deg, rgb(var(--card)), rgb(var(--secondary)));
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.05),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dark .jade-tablet {
+  background: linear-gradient(145deg, rgb(var(--card)), rgb(var(--secondary)));
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.05),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.3);
 }

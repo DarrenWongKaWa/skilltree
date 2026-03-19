@@ -1,0 +1,66 @@
+<svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="mountainFadeLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="180, 165, 150" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="180, 165, 150" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="mountainFadeMid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="150, 140, 125" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="150, 140, 125" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="mountainFadeDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="120, 105, 90" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="120, 105, 90" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="mistFade" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="245, 240, 230" stop-opacity="0"/>
+      <stop offset="50%" stop-color="245, 240, 230" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="245, 240, 230" stop-opacity="0"/>
+    </linearGradient>
+
+    <radialGradient id="mistOrb" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="245, 240, 230" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="245, 240, 230" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Far mountains - lightest, most distant -->
+  <g opacity="0.6">
+    <path d="M0 650 Q150 520 300 580 T600 540 T900 570 T1200 530 T1500 560 T1800 520 T1920 580 L1920 1080 L0 1080 Z"
+          fill="url(#mountainFadeLight)"/>
+    <path d="M-100 700 Q100 580 250 640 T550 600 T850 630 T1150 590 T1450 620 T1750 580 T2000 640 L2000 1080 L-100 1080 Z"
+          fill="url(#mountainFadeLight)" transform="translate(50, 30)"/>
+  </g>
+
+  <!-- Middle mountains - medium opacity -->
+  <g opacity="0.5">
+    <path d="M0 750 Q200 620 400 700 T800 650 T1200 690 T1600 640 T1920 710 L1920 1080 L0 1080 Z"
+          fill="url(#mountainFadeMid)"/>
+    <path d="M-50 780 Q150 680 350 750 T750 700 T1150 740 T1550 690 T1950 760 L1950 1080 L-50 1080 Z"
+          fill="url(#mountainFadeMid)" transform="translate(80, 20)"/>
+  </g>
+
+  <!-- Near mountains - darkest, closest -->
+  <g opacity="0.4">
+    <path d="M0 850 Q250 750 450 830 T850 770 T1250 810 T1650 760 T1920 830 L1920 1080 L0 1080 Z"
+          fill="url(#mountainFadeDark)"/>
+  </g>
+
+  <!-- Mist layers - floating ellipses -->
+  <ellipse cx="250" cy="700" rx="350" ry="60" fill="url(#mistOrb)" class="animate-mist-drift" style="animation-delay: 0s;"/>
+  <ellipse cx="900" cy="650" rx="450" ry="80" fill="url(#mistOrb)" class="animate-mist-drift" style="animation-delay: -3s;"/>
+  <ellipse cx="1500" cy="720" rx="380" ry="70" fill="url(#mistOrb)" class="animate-mist-drift" style="animation-delay: -5s;"/>
+  <ellipse cx="600" cy="800" rx="300" ry="50" fill="url(#mistOrb)" class="animate-mist-drift" style="animation-delay: -2s;"/>
+  <ellipse cx="1200" cy="850" rx="280" ry="45" fill="url(#mistOrb)" class="animate-mist-drift" style="animation-delay: -6s;"/>
+
+  <!-- Subtle bamboo/brush stroke accents -->
+  <g opacity="0.15" stroke="rgb(120, 105, 90)" stroke-width="1" fill="none">
+    <path d="M100 900 Q110 850 105 800 T115 700"/>
+    <path d="M120 905 Q125 860 122 810 T130 720"/>
+    <path d="M1700 920 Q1710 870 1705 820 T1715 720"/>
+    <path d="M1720 915 Q1730 865 1725 815 T1735 730"/>
+  </g>
+</svg>

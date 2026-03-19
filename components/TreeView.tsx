@@ -55,7 +55,7 @@ export default function TreeView({ treeId }: { treeId: string }) {
             target: childId,
             type: 'smoothstep',
             animated: false,
-            style: { stroke: 'rgb(var(--muted-foreground))', strokeWidth: 2 },
+            style: { stroke: 'rgb(var(--muted-foreground))', strokeWidth: 2, opacity: 0.5 },
             markerEnd: { type: MarkerType.ArrowClosed, color: 'rgb(var(--muted-foreground))' },
           })
         })
@@ -120,15 +120,20 @@ export default function TreeView({ treeId }: { treeId: string }) {
 
   if (!tree) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center animate-fade-in">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center">
+      <div className="flex items-center justify-center h-full bg-rice-paper">
+        <div className="text-center animate-ink-spread">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl jade-tablet border-2 border-[rgb(var(--jade-pale))] flex items-center justify-center">
             <span className="text-3xl">🌳</span>
           </div>
-          <h3 className="text-lg font-semibold text-stone-700 dark:text-stone-300 mb-2">Skill tree not found</h3>
+          <h3
+            className="text-lg font-semibold text-[rgb(var(--foreground))] mb-2"
+            style={{ fontFamily: 'var(--font-noto-serif), serif' }}
+          >
+            Skill Tree Not Found
+          </h3>
           <button
             onClick={() => router.push('/')}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 bg-[rgb(var(--primary))] text-[rgb(var(--primary-foreground))] rounded-lg hover:bg-[rgb(var(--primary))]/90 transition-colors border border-[rgb(var(--border))]"
           >
             Back to Home
           </button>
@@ -153,24 +158,29 @@ export default function TreeView({ treeId }: { treeId: string }) {
                 onClick={() => router.push('/')}
                 className="p-2 rounded-lg hover:bg-[rgb(var(--secondary))] transition-colors btn-press"
               >
-                <svg className="w-5 h-5 text-stone-600 dark:text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5 text-[rgb(var(--foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               <div>
-                <h1 className="font-bold text-stone-800 dark:text-stone-100">{tree.topic}</h1>
+                <h1
+                  className="font-bold text-[rgb(var(--foreground))]"
+                  style={{ fontFamily: 'var(--font-noto-serif), serif' }}
+                >
+                  {tree.topic}
+                </h1>
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="flex-1 h-1.5 w-32 bg-stone-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 w-32 bg-[rgb(var(--secondary))] rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         percent === 100
-                          ? 'bg-gradient-to-r from-green-400 to-emerald-500'
-                          : 'bg-gradient-to-r from-blue-500 to-purple-500'
+                          ? 'bg-gradient-to-r from-[rgb(var(--jade-aged))] to-[rgb(var(--jade-pale))]'
+                          : 'bg-gradient-to-r from-[rgb(var(--jade-aged))] to-[rgb(var(--accent))]'
                       }`}
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <span className="text-sm font-medium text-blue-500">
+                  <span className="text-sm font-medium text-[rgb(var(--jade-aged))]">
                     {learnedCount}/{totalCount} ({percent}%)
                   </span>
                 </div>
@@ -184,11 +194,16 @@ export default function TreeView({ treeId }: { treeId: string }) {
 
         {/* Quiz loading overlay */}
         {quizLoading && (
-          <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-20">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl animate-fade-in">
+          <div className="absolute inset-0 bg-[rgb(var(--background))]/60 flex items-center justify-center z-20 backdrop-blur-sm">
+            <div className="bg-[rgb(var(--card))] rounded-2xl p-6 shadow-xl border border-[rgb(var(--border))] animate-ink-spread">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 border-3 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-                <span className="text-stone-700 dark:text-stone-200">Generating Quiz...</span>
+                <div className="w-8 h-8 border-2 border-[rgb(var(--jade-aged))]/30 border-t-[rgb(var(--jade-aged))] rounded-full animate-spin" />
+                <span
+                  className="text-[rgb(var(--foreground))]"
+                  style={{ fontFamily: 'var(--font-noto-serif), serif' }}
+                >
+                  Generating Quiz...
+                </span>
               </div>
             </div>
           </div>
@@ -207,23 +222,32 @@ export default function TreeView({ treeId }: { treeId: string }) {
         >
           <Background
             variant={BackgroundVariant.Dots}
-            gap={20}
+            gap={24}
             size={1}
             color="rgb(var(--border))"
-            className="dark:opacity-50"
+            className="opacity-50"
           />
-          <Controls className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg shadow-lg" />
+          <Controls className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg shadow-lg [&>button]:bg-[rgb(var(--card))] [&>button]:border-b-[rgb(var(--border))] [&>button]:text-[rgb(var(--foreground))] [&>button:hover]:bg-[rgb(var(--secondary))]" />
           <MiniMap
             className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-lg"
             nodeColor={(node) => {
               const data = node.data as unknown as SkillNodeData
-              if (data.status === 'learned') return '#10b981'
-              if (data.status === 'available') return '#3b82f6'
-              return '#94a3b8'
+              if (data.status === 'learned') return 'rgb(var(--jade-aged))'
+              if (data.status === 'available') return 'rgb(var(--jade-pale))'
+              return 'rgb(var(--muted))'
             }}
             maskColor="rgb(var(--background))"
           />
         </ReactFlow>
+
+        {/* Decorative ink wash mountains background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+          <img
+            src="/ink-wash-mountains.svg"
+            alt=""
+            className="w-full h-full object-cover opacity-20 dark:opacity-10"
+          />
+        </div>
       </div>
 
       {/* Node Detail Panel */}
