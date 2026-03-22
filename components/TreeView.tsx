@@ -4,7 +4,8 @@ import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { useStore } from '@/store'
 import SkillListSidebar from '@/components/SkillListSidebar'
-import SkillTreeCanvas from '@/components/SkillTreeCanvas'
+import SkillTreeFlow from '@/components/SkillTreeFlow'
+import { ReactFlowProvider } from '@xyflow/react'
 import BackgroundEvolution from '@/components/BackgroundEvolution'
 import ThemeToggle from '@/components/ThemeToggle'
 import { generateQuiz } from '@/lib/api'
@@ -77,7 +78,29 @@ export default function TreeView({ treeId }: { treeId: string }) {
   const handleUnmark = useCallback((nodeId: string) => {
     updateNodeStatus(treeId, nodeId, 'available')
     setSelectedNode(prev => prev?.id === nodeId ? { ...prev, status: 'available' } : prev)
-  }, [treeId, updateNodeStatus])
+
+    // When unmarking, recalculate child statuses - they may need to be locked again
+    const freshTree = getTree(treeId)
+    if (freshTree) {
+      const children = freshTree.nodes.filter((n) => n.prerequisites.includes(nodeId))
+      children.forEach((child) => {
+        // Check if all prerequisites are still learned
+        const allPrereqsMet = child.prerequisites.every((prereqId) => {
+          const prereq = freshTree.nodes.find((n) => n.id === prereqId)
+          return prereq?.status === 'learned'
+        })
+        if (!allPrereqsMet && child.status === 'learned') {
+          // Child should become available if it has other learned prereqs, or locked if none
+          const hasOtherLearnedPrereq = child.prerequisites.some((prereqId) => {
+            if (prereqId === nodeId) return false
+            const prereq = freshTree.nodes.find((n) => n.id === prereqId)
+            return prereq?.status === 'learned'
+          })
+          updateNodeStatus(treeId, child.id, hasOtherLearnedPrereq ? 'available' : 'locked')
+        }
+      })
+    }
+  }, [treeId, updateNodeStatus, getTree])
 
   const handleQuiz = useCallback(async (node: SkillNodeData) => {
     setQuizLoading(true)
@@ -137,33 +160,21 @@ export default function TreeView({ treeId }: { treeId: string }) {
       <div className="flex-1 relative overflow-hidden" ref={containerRef}>
         {/* Top Bar */}
         <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
-          {/* Left: Back button + Title */}
-          <div className="glass rounded-2xl shadow-lg border border-[rgb(var(--border))] p-3 flex items-center gap-3">
-            <button
-              onClick={() => router.push('/')}
-              className="p-2 rounded-lg hover:bg-[rgb(var(--secondary))] transition-colors"
-              title="Back to home"
-            >
-              <svg className="w-5 h-5 text-[rgb(var(--foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <div className="h-6 w-px bg-[rgb(var(--border))]" />
-            <div>
-              <h1 className="font-bold text-[rgb(var(--foreground))] text-sm" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
-                {tree.topic}
-              </h1>
-              <div className="flex items-center gap-2 mt-0.5">
-                <div className="h-1.5 w-24 bg-[rgb(var(--secondary))] rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-[rgb(var(--lime-dark))] to-[rgb(var(--lime-bright))] transition-all duration-500"
-                    style={{ width: `${percent}%` }}
-                  />
-                </div>
-                <span className="text-xs text-[rgb(var(--muted-foreground))]">
-                  {percent}%
-                </span>
+          {/* Left: Title card */}
+          <div className="glass rounded-2xl shadow-lg border border-[rgb(var(--border))] p-3">
+            <h1 className="font-bold text-[rgb(var(--foreground))] text-sm" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
+              {tree.topic}
+            </h1>
+            <div className="flex items-center gap-2 mt-0.5">
+              <div className="h-1.5 w-24 bg-[rgb(var(--secondary))] rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-[rgb(var(--lime-dark))] to-[rgb(var(--lime-bright))] transition-all duration-500"
+                  style={{ width: `${percent}%` }}
+                />
               </div>
+              <span className="text-xs text-[rgb(var(--muted-foreground))]">
+                {percent}%
+              </span>
             </div>
           </div>
 
@@ -186,19 +197,16 @@ export default function TreeView({ treeId }: { treeId: string }) {
         {/* Evolving Background */}
         <BackgroundEvolution progress={percent} containerRef={containerRef} />
 
-        {/* Tree Canvas with Zoom & Pan */}
-        <SkillTreeCanvas
-          tree={tree}
-          collapsedNodes={collapsedNodes}
-          selectedNode={selectedNode}
-          growthAnimation={growthAnimation}
-          zoom={zoom}
-          pan={pan}
-          onNodeSelect={onNodeSelect}
-          onCollapse={handleCollapse}
-          onPanChange={setPan}
-          onZoomChange={setZoom}
-        />
+        {/* Tree Canvas with ReactFlow */}
+        <ReactFlowProvider>
+          <SkillTreeFlow
+            tree={tree}
+            collapsedNodes={collapsedNodes}
+            selectedNode={selectedNode}
+            onNodeSelect={onNodeSelect}
+            onCollapse={handleCollapse}
+          />
+        </ReactFlowProvider>
 
         {/* Skill Detail Panel */}
         {selectedNode && (

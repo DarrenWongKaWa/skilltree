@@ -77,7 +77,7 @@ export default function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative">
       {/* Forest background */}
       <div className="fixed inset-0 forest-bg z-0">
         {/* Multiple forest layers for depth */}
@@ -143,7 +143,7 @@ export default function HomePage() {
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b backdrop-blur-xl shadow-xl bg-[rgba(15,35,22,0.90)] dark:bg-[rgba(10,25,15,0.92)]">
+      <header className="sticky top-0 z-50 border-b border-[rgb(var(--border))] shadow-xl bg-[rgb(var(--background))]/80 dark:bg-[rgb(var(--background))]/80 backdrop-blur-xl backdrop-saturate-150">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl forest-leaf border-2 border-[rgb(var(--lime-bright))] flex items-center justify-center shadow-lg animate-gentle-float">

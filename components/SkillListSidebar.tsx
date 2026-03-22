@@ -1,6 +1,7 @@
 'use client'
 
 import { memo, useState } from 'react'
+import Link from 'next/link'
 import type { SkillNodeData } from '@/types'
 
 interface SkillListSidebarProps {
@@ -17,15 +18,6 @@ function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: Ski
   const [filterLevel, setFilterLevel] = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<string | null>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
-
-  // Group nodes by level
-  const groupedNodes = nodes.reduce((acc, node) => {
-    if (!acc[node.level]) {
-      acc[node.level] = []
-    }
-    acc[node.level].push(node)
-    return acc
-  }, {} as Record<string, SkillNodeData[]>)
 
   // Filter nodes
   const filteredNodes = nodes.filter(node => {
@@ -50,7 +42,7 @@ function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: Ski
   const backgroundTheme = getBackgroundTheme()
 
   return (
-    <div className={`skill-sidebar ${backgroundTheme} h-full flex flex-col border-r border-[rgb(var(--border))] transition-all duration-300 ease-in-out ${isCollapsed ? 'w-12' : 'w-72'}`}>
+    <div className={`skill-sidebar ${backgroundTheme} h-full flex flex-col border-r border-[rgb(var(--border))] transition-transform duration-300 ease-in-out w-72 ${isCollapsed ? '-translate-x-full' : 'translate-x-0'}`}>
       {/* Collapse Toggle Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
@@ -69,11 +61,13 @@ function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: Ski
       {/* Header - Hidden when collapsed */}
       {!isCollapsed && (
         <div className="p-4 border-b border-[rgb(var(--border))]">
-          <h2 className="text-lg font-semibold text-[rgb(var(--foreground))] mb-3 flex items-center gap-2"
-              style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
-            <span className="text-xl">🌿</span>
-            Skill List
-          </h2>
+          <Link href="/" className="block">
+            <h2 className="text-lg font-semibold text-[rgb(var(--foreground))] mb-3 flex items-center gap-2 hover:text-[rgb(var(--lime-medium))] transition-colors"
+                style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
+              <span className="text-xl">🌿</span>
+              Skill Tree
+            </h2>
+          </Link>
 
           {/* Search */}
           <div className="relative">
