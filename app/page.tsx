@@ -23,31 +23,42 @@ export default function HomePage() {
     setError('')
     setProgress(0)
 
-    // Simulate progress animation
+    // Progress animation - more dynamic
+    let currentProgress = 0
     const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval)
-          return prev
-        }
-        return prev + Math.random() * 15
-      })
-    }, 500)
+      // Slower increments as we approach 90%, creating anticipation
+      const increment = currentProgress < 30 ? Math.random() * 12 :
+                        currentProgress < 60 ? Math.random() * 8 :
+                        currentProgress < 85 ? Math.random() * 5 : 2
+      currentProgress = Math.min(currentProgress + increment, 89) // Cap at 89 while waiting
+      setProgress(currentProgress)
+    }, 400)
+
+    // Timeout after 60 seconds
+    const timeoutId = setTimeout(() => {
+      clearInterval(progressInterval)
+      setLoading(false)
+      setError('Generation timed out, please try again')
+      setProgress(0)
+    }, 60000)
 
     try {
       const tree = await generateSkillTree(topic.trim()) as SkillTree
       clearInterval(progressInterval)
+      clearTimeout(timeoutId)
       setProgress(100)
 
-      // Wait a moment to show 100% completion
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Brief celebration moment
+      await new Promise(resolve => setTimeout(resolve, 300))
 
       addTree(tree)
       setCurrentTree(tree)
       router.push(`/tree/${tree.id}`)
     } catch (e) {
       clearInterval(progressInterval)
-      setError('Generation failed, please try again')
+      clearTimeout(timeoutId)
+      const errorMessage = e instanceof Error ? e.message : 'Generation failed'
+      setError(errorMessage.includes('timeout') ? 'Generation timed out, please try again' : 'Generation failed, please try again')
       console.error(e)
     }
     setLoading(false)
@@ -70,7 +81,7 @@ export default function HomePage() {
       {/* Forest background */}
       <div className="fixed inset-0 forest-bg z-0">
         {/* Multiple forest layers for depth */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1a3d2a] via-[#0d2818] to-[#0a1f12]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1e4d2e] via-[#143828] to-[#0f2518]" />
 
         {/* Tree silhouettes - back layer */}
         <svg className="absolute bottom-0 left-0 w-full h-[70%] opacity-40" preserveAspectRatio="none" viewBox="0 0 1200 500">
@@ -132,11 +143,16 @@ export default function HomePage() {
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b backdrop-blur-md shadow-xl bg-[rgba(5,20,10,0.95)]">
-        <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
+      <header className="sticky top-0 z-50 border-b backdrop-blur-xl shadow-xl bg-[rgba(15,35,22,0.90)] dark:bg-[rgba(10,25,15,0.92)]">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl forest-leaf border-2 border-[rgb(var(--lime-bright))] flex items-center justify-center text-xl shadow-lg animate-gentle-float">
-              <span style={{ fontFamily: 'var(--font-brush-chinese)' }}>木</span>
+            <div className="w-10 h-10 rounded-xl forest-leaf border-2 border-[rgb(var(--lime-bright))] flex items-center justify-center shadow-lg animate-gentle-float">
+              {/* Tree seedling icon */}
+              <svg className="w-5 h-5 text-[rgb(var(--lime-bright))]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22V8" />
+                <path d="M5 12H2a10 10 0 0 0 20 0h-3" />
+                <circle cx="12" cy="5" r="3" fill="currentColor" />
+              </svg>
             </div>
             <div>
               <h1
@@ -145,11 +161,11 @@ export default function HomePage() {
               >
                 SkillTree
               </h1>
-              <p className="text-xs text-[rgb(var(--lime-medium))] opacity-80">Ancient Serenity · AI Learning</p>
+              <p className="text-xs text-[rgb(var(--lime-medium))] opacity-80">Grow Your Knowledge</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="px-3 py-1 rounded-full bg-[rgba(20,60,40,0.8)] text-[rgb(var(--lime-bright))] text-sm font-medium border border-[rgb(var(--lime-medium))]/30">
+            <span className="px-3 py-1 rounded-full bg-[rgba(35,65,45,0.8)] text-[rgb(var(--lime-bright))] text-sm font-medium border border-[rgb(var(--lime-medium))]/30">
               {treeList.length} skill tree{treeList.length !== 1 ? 's' : ''}
             </span>
             <ThemeToggle />
@@ -253,7 +269,7 @@ export default function HomePage() {
           {/* Dynamic progress bar */}
           {loading && (
             <div className="mt-6">
-              <div className="relative h-3 bg-[rgba(10,31,18,0.8)] rounded-full overflow-hidden border border-[rgb(var(--lime-medium))]/20">
+              <div className="relative h-3 bg-[rgba(15,35,22,0.9)] rounded-full overflow-hidden border border-[rgb(var(--lime-medium))]/30">
                 {/* Progress fill */}
                 <div
                   className="absolute inset-y-0 left-0 bg-gradient-to-r from-[rgb(var(--lime-dark))] via-[rgb(var(--lime-medium))] to-[rgb(var(--lime-bright))] rounded-full transition-all duration-300 ease-out"

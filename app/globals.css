@@ -1,58 +1,58 @@
 @import "tailwindcss";
 
 :root {
-  /* Light theme - Rice Paper 宣纸 */
-  --foreground: 60, 50, 40;
-  --background: 245, 240, 230;
-  --card: 250, 245, 235;
-  --card-foreground: 60, 50, 40;
-  --primary: 95, 110, 95;
-  --primary-foreground: 250, 245, 235;
-  --secondary: 230, 220, 205;
-  --secondary-foreground: 60, 50, 40;
-  --muted: 215, 205, 190;
-  --muted-foreground: 120, 105, 90;
-  --accent: 175, 100, 80;
-  --accent-foreground: 250, 245, 235;
-  --destructive: 160, 70, 60;
-  --border: 200, 185, 170;
-  --ring: 95, 110, 95;
+  /* Light theme - Fresh Daylight */
+  --foreground: 45, 50, 55;
+  --background: 250, 252, 250;
+  --card: 255, 255, 255;
+  --card-foreground: 45, 50, 55;
+  --primary: 65, 145, 75;
+  --primary-foreground: 255, 255, 255;
+  --secondary: 235, 240, 235;
+  --secondary-foreground: 45, 50, 55;
+  --muted: 220, 225, 220;
+  --muted-foreground: 100, 110, 105;
+  --accent: 255, 140, 60;
+  --accent-foreground: 255, 255, 255;
+  --destructive: 200, 60, 60;
+  --border: 210, 215, 210;
+  --ring: 65, 145, 75;
   --radius: 0.75rem;
 
-  /* Lime node colors */
-  --lime-bright: 180, 220, 80;
-  --lime-bright-bg: 240, 250, 200;
-  --lime-medium: 120, 180, 60;
-  --lime-medium-bg: 230, 245, 210;
-  --lime-dark: 80, 140, 40;
-  --lime-dark-bg: 220, 240, 200;
+  /* Lime node colors - Light theme */
+  --lime-bright: 140, 200, 60;
+  --lime-bright-bg: 230, 248, 215;
+  --lime-medium: 95, 165, 50;
+  --lime-medium-bg: 225, 242, 205;
+  --lime-dark: 65, 125, 35;
+  --lime-dark-bg: 218, 240, 198;
 }
 
 .dark {
-  /* Dark theme - Ink Night 墨夜 */
-  --foreground: 220, 215, 205;
-  --background: 35, 30, 28;
-  --card: 45, 40, 38;
-  --card-foreground: 220, 215, 205;
-  --primary: 130, 150, 130;
-  --primary-foreground: 35, 30, 28;
-  --secondary: 55, 50, 48;
-  --secondary-foreground: 220, 215, 205;
-  --muted: 80, 75, 70;
-  --muted-foreground: 160, 150, 140;
-  --accent: 185, 120, 100;
-  --accent-foreground: 220, 215, 205;
-  --destructive: 180, 90, 80;
-  --border: 70, 65, 60;
-  --ring: 130, 150, 130;
+  /* Dark theme - Deep Forest Night */
+  --foreground: 230, 235, 230;
+  --background: 15, 25, 20;
+  --card: 25, 38, 30;
+  --card-foreground: 230, 235, 230;
+  --primary: 85, 175, 95;
+  --primary-foreground: 15, 25, 20;
+  --secondary: 35, 50, 40;
+  --secondary-foreground: 230, 235, 230;
+  --muted: 60, 80, 65;
+  --muted-foreground: 150, 165, 155;
+  --accent: 255, 160, 70;
+  --accent-foreground: 15, 25, 20;
+  --destructive: 220, 80, 75;
+  --border: 50, 70, 55;
+  --ring: 85, 175, 95;
 
-  /* Lime node colors - dark theme */
-  --lime-bright: 150, 190, 100;
-  --lime-bright-bg: 40, 55, 30;
-  --lime-medium: 100, 150, 60;
-  --lime-medium-bg: 35, 50, 30;
-  --lime-dark: 80, 130, 50;
-  --lime-dark-bg: 30, 45, 25;
+  /* Lime node colors - Dark theme - More vibrant */
+  --lime-bright: 165, 230, 100;
+  --lime-bright-bg: 35, 65, 30;
+  --lime-medium: 120, 195, 70;
+  --lime-medium-bg: 30, 55, 28;
+  --lime-dark: 85, 155, 55;
+  --lime-dark-bg: 25, 48, 22;
 }
 
 * {
@@ -194,15 +194,17 @@ html {
   transform: scale(0.97);
 }
 
-/* Glass effect - aged parchment variant */
+/* Glass effect - Light mode */
 .glass {
-  background: rgba(250, 245, 235, 0.85);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(210, 215, 210, 0.5);
 }
 
 .dark .glass {
-  background: rgba(45, 40, 38, 0.85);
+  background: rgba(25, 38, 30, 0.90);
+  border: 1px solid rgba(50, 70, 55, 0.5);
 }
 
 /* Paper texture backgrounds */
@@ -224,17 +226,17 @@ html {
 .lime-tablet {
   background: linear-gradient(145deg, rgb(var(--card)), rgb(var(--secondary)));
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.15),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5),
     inset 0 -2px 4px rgba(0, 0, 0, 0.05),
-    0 2px 8px rgba(0, 0, 0, 0.1);
+    0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .dark .lime-tablet {
   background: linear-gradient(145deg, rgb(var(--card)), rgb(var(--secondary)));
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.05),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.1),
-    0 2px 8px rgba(0, 0, 0, 0.3);
+    inset 0 2px 4px rgba(255, 255, 255, 0.08),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15),
+    0 2px 12px rgba(0, 0, 0, 0.35);
 }
 
 /* ========== Forest Theme Styles ========== */
@@ -243,36 +245,65 @@ html {
   background: linear-gradient(to bottom, #1a3d2a 0%, #0d2818 50%, #0a1f12 100%);
 }
 
-/* Forest card styling */
+/* Forest card styling - adapts to theme */
 .forest-card {
-  background: rgba(10, 31, 18, 0.7);
+  background: rgba(230, 248, 225, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(95, 165, 50, 0.3);
+}
+
+.dark .forest-card {
+  background: rgba(15, 35, 22, 0.92);
+  border: 1px solid rgba(85, 155, 70, 0.3);
 }
 
 /* Forest leaf styling */
 .forest-leaf {
-  background: linear-gradient(145deg, rgba(80, 180, 80, 0.3), rgba(40, 120, 60, 0.3));
+  background: linear-gradient(145deg, rgba(140, 200, 60, 0.4), rgba(65, 125, 35, 0.4));
   box-shadow:
-    inset 0 2px 4px rgba(180, 220, 80, 0.2),
+    inset 0 2px 4px rgba(165, 230, 100, 0.3),
     inset 0 -2px 4px rgba(0, 0, 0, 0.1),
-    0 2px 8px rgba(80, 180, 80, 0.2);
+    0 2px 12px rgba(95, 165, 50, 0.3);
+}
+
+.dark .forest-leaf {
+  background: linear-gradient(145deg, rgba(120, 195, 70, 0.5), rgba(65, 125, 35, 0.5));
+  box-shadow:
+    inset 0 2px 4px rgba(165, 230, 100, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+    0 2px 12px rgba(85, 155, 70, 0.4);
 }
 
 /* Forest theme sidebar */
 .forest-theme {
-  background: rgba(10, 31, 18, 0.95);
-  border-color: rgba(80, 160, 80, 0.3);
+  background: rgba(235, 248, 230, 0.98);
+  border-color: rgba(95, 165, 50, 0.3);
+}
+
+.dark .forest-theme {
+  background: rgba(12, 28, 18, 0.98);
+  border-color: rgba(60, 100, 50, 0.3);
 }
 
 .transition-theme {
-  background: linear-gradient(135deg, rgba(10, 31, 18, 0.9) 0%, rgba(20, 30, 40, 0.95) 100%);
-  border-color: rgba(80, 140, 120, 0.3);
+  background: linear-gradient(135deg, rgba(25, 38, 30, 0.95) 0%, rgba(20, 30, 35, 0.98) 100%);
+  border-color: rgba(85, 155, 95, 0.3);
+}
+
+.dark .transition-theme {
+  background: linear-gradient(135deg, rgba(15, 30, 25, 0.95) 0%, rgba(18, 28, 35, 0.98) 100%);
+  border-color: rgba(70, 120, 80, 0.3);
 }
 
 .cyberpunk-theme {
-  background: rgba(5, 15, 30, 0.95);
-  border-color: rgba(0, 200, 200, 0.3);
+  background: rgba(10, 18, 28, 0.98);
+  border-color: rgba(0, 180, 200, 0.3);
+}
+
+.dark .cyberpunk-theme {
+  background: rgba(5, 12, 22, 0.98);
+  border-color: rgba(0, 200, 220, 0.3);
 }
 
 /* ========== Fluorescent Glow Animations ========== */
@@ -445,13 +476,17 @@ html {
 /* Pulse animation for learning nodes */
 @keyframes learning-pulse {
   0%, 100% {
-    box-shadow: 0 0 8px 2px rgba(80, 220, 120, 0.4);
+    box-shadow: 0 0 8px 2px rgba(95, 165, 50, 0.5);
   }
   50% {
-    box-shadow: 0 0 20px 6px rgba(80, 220, 120, 0.7);
+    box-shadow: 0 0 20px 6px rgba(140, 200, 60, 0.7);
   }
 }
 
 .animate-learning-pulse {
   animation: learning-pulse 2s ease-in-out infinite;
+}
+
+.dark .animate-learning-pulse {
+  animation: learning-pulse 1.5s ease-in-out infinite;
 }

@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
           { role: 'user', content: TREE_PROMPT.replace('{topic}', topic) }
         ],
         temperature: 0.3,
-        max_tokens: 8000
+        max_tokens: 5000
       })
     })
 
