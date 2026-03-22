@@ -236,3 +236,222 @@ html {
     inset 0 -2px 4px rgba(0, 0, 0, 0.1),
     0 2px 8px rgba(0, 0, 0, 0.3);
 }
+
+/* ========== Forest Theme Styles ========== */
+
+.forest-bg {
+  background: linear-gradient(to bottom, #1a3d2a 0%, #0d2818 50%, #0a1f12 100%);
+}
+
+/* Forest card styling */
+.forest-card {
+  background: rgba(10, 31, 18, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Forest leaf styling */
+.forest-leaf {
+  background: linear-gradient(145deg, rgba(80, 180, 80, 0.3), rgba(40, 120, 60, 0.3));
+  box-shadow:
+    inset 0 2px 4px rgba(180, 220, 80, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(80, 180, 80, 0.2);
+}
+
+/* Forest theme sidebar */
+.forest-theme {
+  background: rgba(10, 31, 18, 0.95);
+  border-color: rgba(80, 160, 80, 0.3);
+}
+
+.transition-theme {
+  background: linear-gradient(135deg, rgba(10, 31, 18, 0.9) 0%, rgba(20, 30, 40, 0.95) 100%);
+  border-color: rgba(80, 140, 120, 0.3);
+}
+
+.cyberpunk-theme {
+  background: rgba(5, 15, 30, 0.95);
+  border-color: rgba(0, 200, 200, 0.3);
+}
+
+/* ========== Fluorescent Glow Animations ========== */
+
+@keyframes fluorescent-flow {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-fluorescent-flow {
+  offset-path: path(var(--branch-path, 'M0,0 L0,-100'));
+  animation: fluorescent-flow 2s ease-in-out infinite;
+}
+
+/* Firefly animations */
+@keyframes firefly-0 {
+  0%, 100% {
+    opacity: 0.2;
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.2);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(-2px) scale(1);
+  }
+  75% {
+    opacity: 0.8;
+    transform: translateY(-8px) scale(1.1);
+  }
+}
+
+@keyframes firefly-1 {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translateY(0) translateX(0) scale(1);
+  }
+  33% {
+    opacity: 1;
+    transform: translateY(-6px) translateX(3px) scale(1.3);
+  }
+  66% {
+    opacity: 0.4;
+    transform: translateY(-3px) translateX(-2px) scale(1);
+  }
+}
+
+@keyframes firefly-2 {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.2);
+  }
+}
+
+/* Mist drift animation */
+@keyframes mist-drift-slow {
+  0%, 100% {
+    opacity: 0.15;
+    transform: translateX(0) scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: translateX(30px) scale(1.02);
+  }
+}
+
+.animate-mist-drift-slow {
+  animation: mist-drift-slow 12s ease-in-out infinite;
+}
+
+/* Shimmer effect for progress bar */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Data stream animation for cyberpunk */
+@keyframes dataStream {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* Tree growth animation */
+@keyframes tree-grow {
+  0% {
+    transform: scale(0) translateY(20px);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1) translateY(-5px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-tree-grow {
+  animation: tree-grow 0.6s ease-out forwards;
+}
+
+/* Neon pulse for cyberpunk elements */
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
+    opacity: 0.8;
+  }
+  50% {
+    box-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+    opacity: 1;
+  }
+}
+
+.animate-neon-pulse {
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+/* Slide in from right animation */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out forwards;
+}
+
+/* Pulse animation for learning nodes */
+@keyframes learning-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px 2px rgba(80, 220, 120, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 6px rgba(80, 220, 120, 0.7);
+  }
+}
+
+.animate-learning-pulse {
+  animation: learning-pulse 2s ease-in-out infinite;
+}

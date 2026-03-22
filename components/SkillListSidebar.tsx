@@ -1,0 +1,200 @@
+'use client'
+
+import { memo, useState } from 'react'
+import type { SkillNodeData } from '@/types'
+
+interface SkillListSidebarProps {
+  nodes: SkillNodeData[]
+  selectedNodeId: string | null
+  onNodeSelect: (node: SkillNodeData) => void
+  progress: number // 0-100, affects background style
+}
+
+const levelOrder = ['Beginner', 'Intermediate', 'Advanced'] as const
+
+function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: SkillListSidebarProps) {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterLevel, setFilterLevel] = useState<string | null>(null)
+
+  // Group nodes by level
+  const groupedNodes = nodes.reduce((acc, node) => {
+    if (!acc[node.level]) {
+      acc[node.level] = []
+    }
+    acc[node.level].push(node)
+    return acc
+  }, {} as Record<string, SkillNodeData[]>)
+
+  // Filter nodes
+  const filteredNodes = nodes.filter(node => {
+    const matchesSearch = node.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          node.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesLevel = !filterLevel || node.level === filterLevel
+    return matchesSearch && matchesLevel
+  })
+
+  // Determine background theme based on progress
+  const getBackgroundTheme = () => {
+    if (progress < 30) {
+      return 'forest-theme' // Primitive forest
+    } else if (progress < 70) {
+      return 'transition-theme' // Mixed
+    } else {
+      return 'cyberpunk-theme' // Cyberpunk
+    }
+  }
+
+  const backgroundTheme = getBackgroundTheme()
+
+  return (
+    <div className={`skill-sidebar ${backgroundTheme} w-72 h-full flex flex-col border-r border-[rgb(var(--border))]`}>
+      {/* Header */}
+      <div className="p-4 border-b border-[rgb(var(--border))]">
+        <h2 className="text-lg font-semibold text-[rgb(var(--foreground))] mb-3 flex items-center gap-2"
+            style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
+          <span className="text-xl">🌿</span>
+          Skill List
+        </h2>
+
+        {/* Search */}
+        <div className="relative">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search skills..."
+            className="w-full px-3 py-2 bg-[rgb(var(--background))] border border-[rgb(var(--border))] rounded-lg text-sm text-[rgb(var(--foreground))] placeholder:text-[rgb(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--lime-medium))]"
+          />
+          <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(var(--muted-foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+
+        {/* Level Filter */}
+        <div className="flex gap-2 mt-3">
+          {levelOrder.map(level => (
+            <button
+              key={level}
+              onClick={() => setFilterLevel(filterLevel === level ? null : level)}
+              className={`px-2 py-1 text-xs rounded-full transition-all ${
+                filterLevel === level
+                  ? 'bg-[rgb(var(--lime-medium))] text-white'
+                  : 'bg-[rgb(var(--secondary))] text-[rgb(var(--muted-foreground))] hover:bg-[rgb(var(--lime-medium))]/30'
+              }`}
+            >
+              {level}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Progress indicator */}
+      <div className="px-4 py-2 border-b border-[rgb(var(--border))] bg-[rgb(var(--background))]/50">
+        <div className="flex items-center justify-between text-xs mb-1">
+          <span className="text-[rgb(var(--muted-foreground))]">Overall Progress</span>
+          <span className="font-medium text-[rgb(var(--lime-medium))]">{progress}%</span>
+        </div>
+        <div className="h-1.5 bg-[rgb(var(--secondary))] rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-[rgb(var(--lime-medium))] to-[rgb(var(--lime-bright))] rounded-full transition-all duration-500"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Skill List */}
+      <div className="flex-1 overflow-y-auto">
+        {levelOrder.map(level => {
+          const levelNodes = filteredNodes.filter(n => n.level === level)
+          if (levelNodes.length === 0) return null
+
+          return (
+            <div key={level} className="mb-2">
+              <div className="px-4 py-2 bg-[rgb(var(--background))]/30">
+                <h3 className="text-xs font-semibold text-[rgb(var(--muted-foreground))] uppercase tracking-wider flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${
+                    level === 'Beginner' ? 'bg-[rgb(var(--lime-bright))]' :
+                    level === 'Intermediate' ? 'bg-[rgb(var(--lime-medium))]' :
+                    'bg-[rgb(var(--lime-dark))]'
+                  }`} />
+                  {level}
+                  <span className="ml-auto text-[rgb(var(--muted))]">{levelNodes.length}</span>
+                </h3>
+              </div>
+
+              <div className="px-2 py-1">
+                {levelNodes.map(node => (
+                  <button
+                    key={node.id}
+                    onClick={() => onNodeSelect(node)}
+                    className={`w-full text-left px-3 py-2 rounded-lg mb-1 transition-all duration-300 ${
+                      selectedNodeId === node.id
+                        ? 'bg-[rgb(var(--lime-medium))]/20 border border-[rgb(var(--lime-medium))]/50'
+                        : 'hover:bg-[rgb(var(--secondary))] border border-transparent'
+                    } ${node.status === 'locked' ? 'opacity-50' : ''}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {/* Status icon */}
+                      <span className={`text-sm ${
+                        node.status === 'learned' ? 'text-[rgb(var(--lime-medium))]' :
+                        node.status === 'available' ? 'text-[rgb(var(--lime-bright))]' :
+                        'text-[rgb(var(--muted))]'
+                      }`}>
+                        {node.status === 'learned' ? '✓' : node.status === 'available' ? '◆' : '◇'}
+                      </span>
+                      <span className={`text-sm font-medium truncate ${
+                        node.status === 'locked'
+                          ? 'text-[rgb(var(--muted-foreground))]'
+                          : 'text-[rgb(var(--foreground))]'
+                      }`}>
+                        {node.name}
+                      </span>
+                    </div>
+                    {selectedNodeId === node.id && (
+                      <p className="text-xs text-[rgb(var(--muted-foreground))] mt-1 ml-5 line-clamp-2">
+                        {node.description}
+                      </p>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )
+        })}
+
+        {filteredNodes.length === 0 && (
+          <div className="px-4 py-8 text-center text-[rgb(var(--muted-foreground))]">
+            <span className="text-2xl mb-2 block">🔍</span>
+            <p className="text-sm">No skills found</p>
+          </div>
+        )}
+      </div>
+
+      {/* Footer with stats */}
+      <div className="p-4 border-t border-[rgb(var(--border))] bg-[rgb(var(--background))]/50">
+        <div className="flex justify-between text-xs">
+          <div className="text-center">
+            <div className="text-lg font-bold text-[rgb(var(--lime-medium))]">
+              {nodes.filter(n => n.status === 'learned').length}
+            </div>
+            <div className="text-[rgb(var(--muted-foreground))]">Learned</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-[rgb(var(--lime-bright))]">
+              {nodes.filter(n => n.status === 'available').length}
+            </div>
+            <div className="text-[rgb(var(--muted-foreground))]">Available</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-[rgb(var(--muted))]">
+              {nodes.filter(n => n.status === 'locked').length}
+            </div>
+            <div className="text-[rgb(var(--muted-foreground))]">Locked</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default memo(SkillListSidebar)
