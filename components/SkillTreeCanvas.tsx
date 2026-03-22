@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useCallback, useMemo, useRef } from 'react'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import type { SkillTree, SkillNodeData } from '@/types'
 import TreeBranch from '@/components/TreeBranch'
 import SkillNode from '@/components/SkillNode'
+import { useStore } from '@/store'
 
 interface PositionedNode {
   node: SkillNodeData
@@ -47,20 +48,23 @@ export default function SkillTreeCanvas({
   onPanChange,
   onZoomChange,
 }: SkillTreeCanvasProps) {
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  // Use Zustand store for camera state (shared globally for branch rendering)
+  const camera = useStore(state => state.camera)
+  const updateCamera = useStore(state => state.updateCamera)
+  const nodePositions = useStore(state => state.nodePositions)
+  const initializeNodePositions = useStore(state => state.initializeNodePositions)
+
+  const [isDraggingCanvas, setIsDraggingCanvas] = useState(false)
+  const dragStart = useRef({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Calculate layout - tree grows from bottom to top
-  const layout = useMemo(() => {
-    // Find root nodes (no prerequisites)
-    const rootNodes = tree.nodes.filter(n => n.prerequisites.length === 0)
+  // Initialize node positions from layout on first render
+  useEffect(() => {
+    if (!tree) return
 
-    // Build child map for tree traversal
     const childMap: Record<string, string[]> = {}
     tree.nodes.forEach(n => { childMap[n.id] = n.children || [] })
 
-    // Calculate all hidden nodes (descendants of collapsed nodes)
     const getAllDescendants = (nodeId: string): Set<string> => {
       const descendants = new Set<string>()
       const stack = [...(childMap[nodeId] || [])]
@@ -79,7 +83,7 @@ export default function SkillTreeCanvas({
       getAllDescendants(collapsedId).forEach(id => hiddenNodes.add(id))
     })
 
-    // Group nodes by level (distance from root) - only visible nodes
+    const rootNodes = tree.nodes.filter(n => n.prerequisites.length === 0)
     const levelMap = new Map<string, number>()
     const assignLevel = (nodeId: string, level: number) => {
       if (levelMap.has(nodeId)) return
@@ -94,17 +98,89 @@ export default function SkillTreeCanvas({
         })
       }
     }
-
     rootNodes.forEach(root => {
-      if (!hiddenNodes.has(root.id)) {
-        assignLevel(root.id, 0)
-      }
+      if (!hiddenNodes.has(root.id)) assignLevel(root.id, 0)
     })
     tree.nodes.forEach(node => {
       if (!levelMap.has(node.id) && !hiddenNodes.has(node.id)) levelMap.set(node.id, 0)
     })
 
-    // Calculate positions - only visible nodes
+    const visibleNodes = tree.nodes.filter(n => !hiddenNodes.has(n.id))
+    const nodesByLevel = visibleNodes.reduce((acc, node) => {
+      const level = levelMap.get(node.id) || 0
+      if (!acc[level]) acc[level] = []
+      acc[level].push(node)
+      return acc
+    }, {} as Record<number, SkillNodeData[]>)
+
+    const levelHeight = 150
+    const baseY = 700
+    const nodeWidth = 140
+
+    const positions = visibleNodes.map(node => {
+      const level = levelMap.get(node.id) || 0
+      const nodesAtLevel = nodesByLevel[level] || []
+      const indexAtLevel = nodesAtLevel.indexOf(node)
+      const totalAtLevel = nodesAtLevel.length
+      const levelWidth = totalAtLevel * nodeWidth
+      const startX = (800 - levelWidth) / 2 + nodeWidth / 2
+
+      return {
+        id: node.id,
+        x: startX + indexAtLevel * nodeWidth,
+        y: baseY - level * levelHeight,
+      }
+    })
+
+    initializeNodePositions(tree.id, positions)
+  }, [tree, collapsedNodes, initializeNodePositions])
+
+  // Get node positions (from store if dragged, otherwise from layout calculation)
+  const layout = useMemo(() => {
+    const rootNodes = tree.nodes.filter(n => n.prerequisites.length === 0)
+
+    const childMap: Record<string, string[]> = {}
+    tree.nodes.forEach(n => { childMap[n.id] = n.children || [] })
+
+    const getAllDescendants = (nodeId: string): Set<string> => {
+      const descendants = new Set<string>()
+      const stack = [...(childMap[nodeId] || [])]
+      while (stack.length > 0) {
+        const childId = stack.pop()!
+        if (!descendants.has(childId)) {
+          descendants.add(childId)
+          stack.push(...(childMap[childId] || []))
+        }
+      }
+      return descendants
+    }
+
+    const hiddenNodes = new Set<string>()
+    collapsedNodes.forEach(collapsedId => {
+      getAllDescendants(collapsedId).forEach(id => hiddenNodes.add(id))
+    })
+
+    const levelMap = new Map<string, number>()
+    const assignLevel = (nodeId: string, level: number) => {
+      if (levelMap.has(nodeId)) return
+      if (hiddenNodes.has(nodeId)) return
+      levelMap.set(nodeId, level)
+      const node = tree.nodes.find(n => n.id === nodeId)
+      if (node) {
+        (node.children || []).forEach(childId => {
+          if (!hiddenNodes.has(childId)) {
+            assignLevel(childId, level + 1)
+          }
+        })
+      }
+    }
+    rootNodes.forEach(root => {
+      if (!hiddenNodes.has(root.id)) assignLevel(root.id, 0)
+    })
+    tree.nodes.forEach(node => {
+      if (!levelMap.has(node.id) && !hiddenNodes.has(node.id)) levelMap.set(node.id, 0)
+    })
+
     const visibleNodes = tree.nodes.filter(n => !hiddenNodes.has(n.id))
     const nodesByLevel = visibleNodes.reduce((acc, node) => {
       const level = levelMap.get(node.id) || 0
@@ -118,35 +194,32 @@ export default function SkillTreeCanvas({
     const baseY = 700
     const nodeWidth = 140
 
-    // Position nodes - only visible ones
     const positionedNodes: PositionedNode[] = visibleNodes.map(node => {
       const level = levelMap.get(node.id) || 0
       const nodesAtLevel = nodesByLevel[level] || []
       const indexAtLevel = nodesAtLevel.indexOf(node)
       const totalAtLevel = nodesAtLevel.length
-
       const levelWidth = totalAtLevel * nodeWidth
       const startX = (800 - levelWidth) / 2 + nodeWidth / 2
 
+      // Use dragged position if available, otherwise use calculated position
+      const draggedPos = nodePositions[node.id]
       return {
         node,
-        x: startX + indexAtLevel * nodeWidth,
-        y: baseY - level * levelHeight,
+        x: draggedPos?.x ?? startX + indexAtLevel * nodeWidth,
+        y: draggedPos?.y ?? baseY - level * levelHeight,
         level,
       }
     })
 
-    // Create visible node map for quick lookup
     const visibleNodeMap = new Set(visibleNodes.map(n => n.id))
 
-    // Create branches (edges between parent and children)
     const branches: Branch[] = positionedNodes.flatMap(parent => {
       return (parent.node.children || [])
         .filter(childId => visibleNodeMap.has(childId))
         .map(childId => {
           const child = positionedNodes.find(p => p.node.id === childId)
           if (!child) return null
-
           return {
             startX: parent.x,
             startY: parent.y + 25,
@@ -160,37 +233,52 @@ export default function SkillTreeCanvas({
     }).filter(Boolean) as Branch[]
 
     return { nodes: positionedNodes, branches, maxY: baseY + 50 }
-  }, [tree, collapsedNodes])
+  }, [tree, collapsedNodes, nodePositions])
 
-  // Calculate animation order (bottom to top)
   const animationOrder = useMemo(() => {
     const sorted = [...layout.nodes].sort((a, b) => b.y - a.y)
     return new Map(sorted.map((n, i) => [n.node.id, i * 80]))
   }, [layout.nodes])
 
-  // Pan handlers
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+  // Canvas pan handlers (only when clicking on canvas background)
+  const handleCanvasPointerDown = useCallback((e: React.PointerEvent) => {
+    // Only pan if clicking on canvas background (id="canvas-bg")
+    if ((e.target as HTMLElement).id !== 'canvas-bg') return
     if (e.button !== 0) return
-    setIsDragging(true)
-    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y })
-  }, [pan])
+    setIsDraggingCanvas(true)
+    dragStart.current = { x: e.clientX - camera.x, y: e.clientY - camera.y }
+  }, [camera.x, camera.y])
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging) return
-    onPanChange({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y })
-  }, [isDragging, dragStart, onPanChange])
+  const handleCanvasPointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isDraggingCanvas) return
+    updateCamera(e.clientX - dragStart.current.x, e.clientY - dragStart.current.y)
+    onPanChange({ x: e.clientX - dragStart.current.x, y: e.clientY - dragStart.current.y })
+  }, [isDraggingCanvas, updateCamera, onPanChange])
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
+  const handleCanvasPointerUp = useCallback(() => {
+    setIsDraggingCanvas(false)
   }, [])
 
-  const handleMouseLeave = useCallback(() => {
-    setIsDragging(false)
+  const handleCanvasPointerLeave = useCallback(() => {
+    setIsDraggingCanvas(false)
   }, [])
 
-  const zoomIn = () => onZoomChange(Math.min(zoom + 0.2, 2))
-  const zoomOut = () => onZoomChange(Math.max(zoom - 0.2, 0.4))
-  const resetView = () => { onZoomChange(1); onPanChange({ x: 0, y: 0 }) }
+  const zoomIn = () => {
+    const newZoom = Math.min(zoom + 0.2, 2)
+    onZoomChange(newZoom)
+    useStore.getState().setZoom(newZoom)
+  }
+  const zoomOut = () => {
+    const newZoom = Math.max(zoom - 0.2, 0.4)
+    onZoomChange(newZoom)
+    useStore.getState().setZoom(newZoom)
+  }
+  const resetView = () => {
+    onZoomChange(1)
+    onPanChange({ x: 0, y: 0 })
+    useStore.getState().setZoom(1)
+    useStore.getState().updateCamera(0, 0)
+  }
 
   return (
     <>
@@ -231,15 +319,17 @@ export default function SkillTreeCanvas({
         </div>
       </div>
 
-      {/* Canvas with drag-to-pan */}
+      {/* Canvas viewport - pan by dragging background, nodes handle their own drag */}
       <div
         ref={containerRef}
-        className={`absolute inset-0 z-10 overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
+        id="canvas-bg"
+        className={`absolute inset-0 z-10 overflow-hidden ${isDraggingCanvas ? 'cursor-grabbing' : 'cursor-grab'}`}
+        onPointerDown={handleCanvasPointerDown}
+        onPointerMove={handleCanvasPointerMove}
+        onPointerUp={handleCanvasPointerUp}
+        onPointerLeave={handleCanvasPointerLeave}
       >
+        {/* Viewport container - transform applied for pan + zoom */}
         <div
           className="relative transition-transform duration-300 ease-out"
           style={{
@@ -264,7 +354,7 @@ export default function SkillTreeCanvas({
             </div>
           </div>
 
-          {/* Tree SVG Canvas (branches) */}
+          {/* SVG branches layer - shares same transform as nodes */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none"
             viewBox="0 0 800 750"
@@ -284,7 +374,7 @@ export default function SkillTreeCanvas({
             ))}
           </svg>
 
-          {/* Fruit Nodes */}
+          {/* Fruit Nodes layer */}
           {layout.nodes.map(({ node, x, y }) => {
             const animationDelay = animationOrder.get(node.id) || 0
             const isCollapsed = node.children.length > 0 && collapsedNodes.has(node.id)

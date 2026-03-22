@@ -1,7 +1,8 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useState, useRef, useCallback } from 'react'
 import type { SkillNodeData } from '@/types'
+import { useStore } from '@/store'
 
 // Fruit colors by level and status
 type FruitStyle = {
@@ -51,8 +52,34 @@ function SkillNodeComponent({
   onSelect,
   onCollapse,
 }: SkillNodeProps) {
+  const updateNodePosition = useStore(state => state.updateNodePosition)
+  const camera = useStore(state => state.camera)
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStart = useRef({ x: 0, y: 0 })
+
   const levelStyle = FRUIT_STYLES[node.level] || FRUIT_STYLES.Beginner
   const statusStyle = levelStyle[node.status] || levelStyle.locked
+
+  // Pointer down - start drag, stop propagation so canvas doesn't pan
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    e.stopPropagation()
+    setIsDragging(true)
+    dragStart.current = { x: e.clientX, y: e.clientY }
+  }, [])
+
+  // Pointer move - update position with zoom correction
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isDragging) return
+    const dx = (e.clientX - dragStart.current.x) / camera.zoom
+    const dy = (e.clientY - dragStart.current.y) / camera.zoom
+    updateNodePosition(node.id, x + dx, y + dy)
+    dragStart.current = { x: e.clientX, y: e.clientY }
+  }, [isDragging, x, y, camera.zoom, node.id, updateNodePosition])
+
+  // Pointer up - end drag
+  const handlePointerUp = useCallback(() => {
+    setIsDragging(false)
+  }, [])
 
   const handleClick = () => {
     if (node.children.length > 0 && (node.status === 'learned' || node.status === 'available')) {
@@ -65,7 +92,7 @@ function SkillNodeComponent({
     <div
       className={`absolute transition-all duration-700 ease-out ${
         isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
-      }`}
+      } ${isDragging ? 'cursor-grabbing z-50' : ''}`}
       style={{
         left: `${x - 24}px`,
         top: `${y - 24}px`,
@@ -75,8 +102,12 @@ function SkillNodeComponent({
       {/* Fruit Node */}
       <button
         onClick={handleClick}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
         className={`
-          relative w-12 h-12 rounded-full
+          relative w-12 h-12 rounded-full cursor-pointer select-none touch-none
           ${statusStyle.bg} ${statusStyle.glow}
           transition-all duration-300 ease-out
           hover:scale-110 hover:-translate-y-1

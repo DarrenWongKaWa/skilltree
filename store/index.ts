@@ -2,6 +2,20 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { SkillTree, SkillNodeData, Quiz } from '@/types'
 
+// Canvas camera state (pan + zoom)
+interface CameraState {
+  x: number
+  y: number
+  zoom: number
+}
+
+// Node position state (for draggable nodes)
+interface NodePosition {
+  id: string
+  x: number
+  y: number
+}
+
 interface AppState {
   // Current tree being viewed/edited
   currentTree: SkillTree | null
@@ -10,8 +24,14 @@ interface AppState {
   // All saved trees (indexed by id)
   trees: Record<string, SkillTree>
 
-  // O(1) lookup maps for tree nodes ( regenerated on tree add/update)
+  // O(1) lookup maps for tree nodes
   nodesMaps: Record<string, Record<string, SkillNodeData>>
+
+  // Canvas camera state (pan + zoom) - global so branches can follow
+  camera: CameraState
+
+  // Node positions for draggable nodes
+  nodePositions: Record<string, NodePosition>
 
   // Actions
   setCurrentTree: (tree: SkillTree | null) => void
@@ -20,6 +40,14 @@ interface AppState {
   setCurrentQuiz: (quiz: Quiz | null) => void
   getTree: (id: string) => SkillTree | undefined
   getNode: (treeId: string, nodeId: string) => SkillNodeData | undefined
+
+  // Camera actions
+  updateCamera: (x: number, y: number) => void
+  setZoom: (zoom: number) => void
+
+  // Node position actions
+  updateNodePosition: (id: string, x: number, y: number) => void
+  initializeNodePositions: (treeId: string, positions: NodePosition[]) => void
 }
 
 interface SkillNode {
@@ -34,6 +62,8 @@ export const useStore = create<AppState>()(
       currentQuiz: null,
       trees: {},
       nodesMaps: {},
+      camera: { x: 0, y: 0, zoom: 1 },
+      nodePositions: {},
 
       setCurrentTree: (tree) => set({ currentTree: tree }),
 
@@ -76,6 +106,26 @@ export const useStore = create<AppState>()(
       getTree: (id) => get().trees[id],
 
       getNode: (treeId, nodeId) => get().nodesMaps[treeId]?.[nodeId],
+
+      // Camera actions
+      updateCamera: (x, y) => set((state) => ({
+        camera: { ...state.camera, x, y }
+      })),
+
+      setZoom: (zoom) => set((state) => ({
+        camera: { ...state.camera, zoom }
+      })),
+
+      // Node position actions
+      updateNodePosition: (id, x, y) => set((state) => ({
+        nodePositions: { ...state.nodePositions, [id]: { id, x, y } }
+      })),
+
+      initializeNodePositions: (treeId, positions) => set((state) => {
+        const newPositions = { ...state.nodePositions }
+        positions.forEach(p => { newPositions[p.id] = p })
+        return { nodePositions: newPositions }
+      }),
     }),
     {
       name: 'skilltree-storage',
