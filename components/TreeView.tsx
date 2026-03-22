@@ -49,6 +49,9 @@ export default function TreeView({ treeId }: { treeId: string }) {
   const [growthAnimation, setGrowthAnimation] = useState<Record<string, boolean>>({})
   const [zoom, setZoom] = useState(1)
   const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set())
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
 
   // Calculate layout - tree grows from bottom to top
   const layout = useMemo(() => {
@@ -57,22 +60,57 @@ export default function TreeView({ treeId }: { treeId: string }) {
     // Find root nodes (no prerequisites)
     const rootNodes = tree.nodes.filter(n => n.prerequisites.length === 0)
 
-    // Group nodes by level (distance from root)
+    // Build child map for tree traversal
+    const childMap: Record<string, string[]> = {}
+    tree.nodes.forEach(n => { childMap[n.id] = n.children || [] })
+
+    // Calculate all hidden nodes (descendants of collapsed nodes)
+    const getAllDescendants = (nodeId: string): Set<string> => {
+      const descendants = new Set<string>()
+      const stack = [...(childMap[nodeId] || [])]
+      while (stack.length > 0) {
+        const childId = stack.pop()!
+        if (!descendants.has(childId)) {
+          descendants.add(childId)
+          stack.push(...(childMap[childId] || []))
+        }
+      }
+      return descendants
+    }
+
+    const hiddenNodes = new Set<string>()
+    collapsedNodes.forEach(collapsedId => {
+      getAllDescendants(collapsedId).forEach(id => hiddenNodes.add(id))
+    })
+
+    // Group nodes by level (distance from root) - only visible nodes
     const levelMap = new Map<string, number>()
     const assignLevel = (nodeId: string, level: number) => {
       if (levelMap.has(nodeId)) return
+      if (hiddenNodes.has(nodeId)) return // Skip hidden nodes
       levelMap.set(nodeId, level)
       const node = tree.nodes.find(n => n.id === nodeId)
-      node?.children.forEach(childId => assignLevel(childId, level + 1))
+      if (node) {
+        (node.children || []).forEach(childId => {
+          if (!hiddenNodes.has(childId)) {
+            assignLevel(childId, level + 1)
+          }
+        })
+      }
     }
 
-    rootNodes.forEach(root => assignLevel(root.id, 0))
+    rootNodes.forEach(root => {
+      if (!hiddenNodes.has(root.id)) {
+        assignLevel(root.id, 0)
+      }
+    })
     tree.nodes.forEach(node => {
-      if (!levelMap.has(node.id)) levelMap.set(node.id, 0)
+      if (!levelMap.has(node.id) && !hiddenNodes.has(node.id)) levelMap.set(node.id, 0)
     })
 
-    // Calculate positions
-    const nodesByLevel = tree.nodes.reduce((acc, node) => {
+    // Calculate positions - only for visible nodes
+    const visibleNodes = tree.nodes.filter(n => !hiddenNodes.has(n.id))
+    const nodesByLevel = visibleNodes.reduce((acc, node) => {
       const level = levelMap.get(node.id) || 0
       if (!acc[level]) acc[level] = []
       acc[level].push(node)
@@ -84,8 +122,8 @@ export default function TreeView({ treeId }: { treeId: string }) {
     const baseY = 700
     const nodeWidth = 140
 
-    // Position nodes
-    const positionedNodes = tree.nodes.map(node => {
+    // Position nodes - only visible ones
+    const positionedNodes = visibleNodes.map(node => {
       const level = levelMap.get(node.id) || 0
       const nodesAtLevel = nodesByLevel[level] || []
       const indexAtLevel = nodesAtLevel.indexOf(node)
@@ -102,16 +140,16 @@ export default function TreeView({ treeId }: { treeId: string }) {
       }
     })
 
-    // Create branches (edges between parent and children) - only for non-collapsed
-    const branches = tree.nodes.flatMap(node => {
-      if (collapsedNodes.has(node.id)) return [] // Skip if parent collapsed
+    // Create visible node map for quick lookup
+    const visibleNodeMap = new Set(visibleNodes.map(n => n.id))
 
-      return (node.children || [])
-        .filter(childId => !collapsedNodes.has(childId))
+    // Create branches (edges between parent and children) - only for visible nodes
+    const branches = positionedNodes.flatMap(parent => {
+      return (parent.node.children || [])
+        .filter(childId => visibleNodeMap.has(childId))
         .map(childId => {
-          const parent = positionedNodes.find(p => p.node.id === node.id)
           const child = positionedNodes.find(p => p.node.id === childId)
-          if (!parent || !child) return null
+          if (!child) return null
 
           const branchLevel = Math.min(parent.level, maxLevel)
 
@@ -122,7 +160,7 @@ export default function TreeView({ treeId }: { treeId: string }) {
             endY: child.y - 25,
             level: branchLevel,
             isLearned: parent.node.status === 'learned',
-            key: `${node.id}-${childId}`,
+            key: `${parent.node.id}-${childId}`,
           }
         }).filter(Boolean)
     }).filter(Boolean) as {
@@ -189,6 +227,11 @@ export default function TreeView({ treeId }: { treeId: string }) {
     }
   }, [treeId, updateNodeStatus, getTree])
 
+  const handleUnmark = useCallback((nodeId: string) => {
+    updateNodeStatus(treeId, nodeId, 'available')
+    setSelectedNode(prev => prev?.id === nodeId ? { ...prev, status: 'available' } : prev)
+  }, [treeId, updateNodeStatus])
+
   const handleQuiz = useCallback(async (node: SkillNodeData) => {
     setQuizLoading(true)
     try {
@@ -208,6 +251,27 @@ export default function TreeView({ treeId }: { treeId: string }) {
 
   const zoomIn = () => setZoom(prev => Math.min(prev + 0.2, 2))
   const zoomOut = () => setZoom(prev => Math.max(prev - 0.2, 0.4))
+  const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }) }
+
+  // Pan handlers for drag-to-pan
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return // Only left click
+    setIsDragging(true)
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y })
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return
+    setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y })
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleMouseLeave = () => {
+    setIsDragging(false)
+  }
 
   if (!tree) {
     return (
@@ -304,6 +368,16 @@ export default function TreeView({ treeId }: { treeId: string }) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               </button>
+              <div className="w-px h-5 bg-[rgb(var(--border))]" />
+              <button
+                onClick={resetView}
+                className="p-2 rounded-lg hover:bg-[rgb(var(--secondary))] transition-colors"
+                title="Reset view"
+              >
+                <svg className="w-4 h-4 text-[rgb(var(--foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              </button>
             </div>
             <ThemeToggle />
           </div>
@@ -324,18 +398,37 @@ export default function TreeView({ treeId }: { treeId: string }) {
         {/* Evolving Background */}
         <BackgroundEvolution progress={percent} containerRef={containerRef} />
 
-        {/* Tree Canvas with Zoom */}
-        <div className="absolute inset-0 z-10 overflow-auto">
+        {/* Tree Canvas with Zoom & Pan */}
+        <div
+          className={`absolute inset-0 z-10 overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
+        >
           <div
-            className="relative transition-transform duration-300 ease-out origin-center"
+            className="relative transition-transform duration-300 ease-out"
             style={{
               width: '800px',
-              height: `${layout.maxY}px`,
+              height: `${layout.maxY + 60}px`,
               margin: '0 auto',
-              transform: `scale(${zoom})`,
+              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
               transformOrigin: 'center 70%',
             }}
           >
+            {/* Seed Root Node - Topic Seed at bottom */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[rgb(var(--lime-dark))] to-[rgb(var(--lime-medium))] shadow-lg flex items-center justify-center animate-pulse">
+                <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 22V12M12 12C12 12 7 9 7 5C7 3 9 2 12 2C15 2 17 3 17 5C17 9 12 12 12 12ZM5 12H2M22 12H19M12 12V22"/>
+                </svg>
+              </div>
+              <div className="mt-2 px-4 py-1.5 rounded-full bg-[rgb(var(--card))]/90 border border-[rgb(var(--border))] shadow-md">
+                <span className="text-sm font-bold text-[rgb(var(--foreground))]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
+                  {tree.topic}
+                </span>
+              </div>
+            </div>
             {/* Tree SVG Canvas (branches) */}
             <svg
               className="absolute inset-0 w-full h-full pointer-events-none"
@@ -540,11 +633,19 @@ export default function TreeView({ treeId }: { treeId: string }) {
                   </div>
                 )}
                 {selectedNode.status === 'learned' && (
-                  <div className="flex-1 text-center text-sm text-[rgb(var(--lime-medium))] py-2.5 font-medium flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Already Learned
+                  <div className="flex gap-2 w-full">
+                    <button
+                      onClick={() => handleUnmark(selectedNode.id)}
+                      className="flex-1 px-4 py-2.5 bg-[rgb(var(--secondary))] text-[rgb(var(--foreground))] rounded-lg hover:bg-[rgb(var(--secondary))]/80 transition-opacity text-sm font-medium border border-[rgb(var(--border))]"
+                    >
+                      Unmark
+                    </button>
+                    <div className="flex-1 flex items-center justify-center gap-2 text-sm text-[rgb(var(--lime-medium))] py-2.5 font-medium">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Learned
+                    </div>
                   </div>
                 )}
               </div>

@@ -15,6 +15,7 @@ const levelOrder = ['Beginner', 'Intermediate', 'Advanced'] as const
 function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: SkillListSidebarProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterLevel, setFilterLevel] = useState<string | null>(null)
+  const [filterStatus, setFilterStatus] = useState<string | null>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
 
   // Group nodes by level
@@ -31,7 +32,8 @@ function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: Ski
     const matchesSearch = node.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           node.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesLevel = !filterLevel || node.level === filterLevel
-    return matchesSearch && matchesLevel
+    const matchesStatus = !filterStatus || node.status === filterStatus
+    return matchesSearch && matchesLevel && matchesStatus
   })
 
   // Determine background theme based on progress
@@ -209,25 +211,64 @@ function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: Ski
       {/* Footer with stats - Hidden when collapsed */}
       {!isCollapsed && (
         <div className="p-4 border-t border-[rgb(var(--border))] bg-[rgb(var(--background))]/50">
+          {/* Status filter labels */}
+          <div className="flex justify-between text-xs mb-2">
+            {(['learned', 'available', 'locked'] as const).map(status => (
+              <button
+                key={status}
+                onClick={() => setFilterStatus(filterStatus === status ? null : status)}
+                className={`flex items-center gap-1 px-2 py-1 rounded-full transition-all ${
+                  filterStatus === status
+                    ? status === 'learned' ? 'bg-[rgb(var(--lime-medium))] text-white' :
+                      status === 'available' ? 'bg-[rgb(var(--lime-bright))] text-white' :
+                      'bg-[rgb(var(--muted))] text-white'
+                    : 'bg-[rgb(var(--secondary))] text-[rgb(var(--muted-foreground))] hover:bg-[rgb(var(--secondary))]/80'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  status === 'learned' ? 'bg-[rgb(var(--lime-medium))]' :
+                  status === 'available' ? 'bg-[rgb(var(--lime-bright))]' :
+                  'bg-[rgb(var(--muted))]'
+                } ${filterStatus === status ? 'bg-white' : ''}`} />
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            ))}
+          </div>
+          {/* Stats numbers */}
           <div className="flex justify-between text-xs">
-            <div className="text-center">
+            <button
+              onClick={() => setFilterStatus(filterStatus === 'learned' ? null : 'learned')}
+              className={`flex-1 text-center py-1 rounded-lg transition-all ${
+                filterStatus === 'learned' ? 'bg-[rgb(var(--lime-medium))]/20' : 'hover:bg-[rgb(var(--secondary))]/50'
+              }`}
+            >
               <div className="text-lg font-bold text-[rgb(var(--lime-medium))]">
                 {nodes.filter(n => n.status === 'learned').length}
               </div>
-              <div className="text-[rgb(var(--muted-foreground))]">Learned</div>
-            </div>
-            <div className="text-center">
+              <div className="text-[rgb(var(--muted-foreground))] text-[10px]">Learned</div>
+            </button>
+            <button
+              onClick={() => setFilterStatus(filterStatus === 'available' ? null : 'available')}
+              className={`flex-1 text-center py-1 rounded-lg transition-all ${
+                filterStatus === 'available' ? 'bg-[rgb(var(--lime-bright))]/20' : 'hover:bg-[rgb(var(--secondary))]/50'
+              }`}
+            >
               <div className="text-lg font-bold text-[rgb(var(--lime-bright))]">
                 {nodes.filter(n => n.status === 'available').length}
               </div>
-              <div className="text-[rgb(var(--muted-foreground))]">Available</div>
-            </div>
-            <div className="text-center">
+              <div className="text-[rgb(var(--muted-foreground))] text-[10px]">Available</div>
+            </button>
+            <button
+              onClick={() => setFilterStatus(filterStatus === 'locked' ? null : 'locked')}
+              className={`flex-1 text-center py-1 rounded-lg transition-all ${
+                filterStatus === 'locked' ? 'bg-[rgb(var(--muted))]/20' : 'hover:bg-[rgb(var(--secondary))]/50'
+              }`}
+            >
               <div className="text-lg font-bold text-[rgb(var(--muted))]">
                 {nodes.filter(n => n.status === 'locked').length}
               </div>
-              <div className="text-[rgb(var(--muted-foreground))]">Locked</div>
-            </div>
+              <div className="text-[rgb(var(--muted-foreground))] text-[10px]">Locked</div>
+            </button>
           </div>
         </div>
       )}
