@@ -110,14 +110,19 @@ export default function TreeView({ treeId }: { treeId: string }) {
     return { nodes: positionedNodes, branches }
   }, [tree])
 
-  // Trigger growth animation on mount
+  // Trigger growth animation on mount - bottom to top
   useEffect(() => {
     if (tree && layout.nodes.length > 0) {
-      const animatingNodes: Record<string, boolean> = {}
-      layout.nodes.forEach((_, i) => {
+      // Sort by level (bottom = higher level number in this layout)
+      // Higher Y = lower on screen = should animate first
+      const sortedIndices = layout.nodes
+        .map((_, i) => i)
+        .sort((a, b) => layout.nodes[b].y - layout.nodes[a].y) // Higher Y first (bottom nodes)
+
+      sortedIndices.forEach((nodeIndex, sortedOrder) => {
         setTimeout(() => {
-          setGrowthAnimation(prev => ({ ...prev, [i]: true }))
-        }, i * 100)
+          setGrowthAnimation(prev => ({ ...prev, [nodeIndex]: true }))
+        }, sortedOrder * 150) // 150ms delay between each level
       })
     }
   }, [tree, layout.nodes.length])
@@ -193,7 +198,7 @@ export default function TreeView({ treeId }: { treeId: string }) {
   const percent = Math.round((learnedCount / totalCount) * 100)
 
   return (
-    <div className="flex h-full bg-[rgb(var(--background))]">
+    <div className="flex h-full bg-[rgb(var(--background))] relative">
       {/* Left Sidebar */}
       <SkillListSidebar
         nodes={tree.nodes}
@@ -296,25 +301,33 @@ export default function TreeView({ treeId }: { treeId: string }) {
               margin: '0 auto',
             }}
           >
-            {layout.nodes.map(({ node, x, y }, index) => (
-              <div
-                key={node.id}
-                className={`absolute transition-all duration-700 ${
-                  growthAnimation[index] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{
-                  left: `${x - 80}px`,
-                  top: `${y - 30}px`,
-                  transitionDelay: `${index * 50}ms`,
-                }}
-                onClick={() => onNodeSelect(node)}
-              >
+            {layout.nodes.map(({ node, x, y }, index) => {
+              // Calculate sorted order for proper bottom-to-top animation delay
+              const sortedIndices = layout.nodes
+                .map((_, i) => i)
+                .sort((a, b) => layout.nodes[b].y - layout.nodes[a].y)
+              const sortedOrder = sortedIndices.indexOf(index)
+
+              return (
+                <div
+                  key={node.id}
+                  className={`absolute transition-all duration-700 ease-out ${
+                    growthAnimation[index] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'
+                  }`}
+                  style={{
+                    left: `${x - 80}px`,
+                    top: `${y - 30}px`,
+                    transitionDelay: `${sortedOrder * 100}ms`,
+                  }}
+                  onClick={() => onNodeSelect(node)}
+                >
                 <SkillNodeCard
                   data={node}
                   selected={selectedNode?.id === node.id}
                 />
               </div>
-            ))}
+            )
+            })}
           </div>
         </div>
 

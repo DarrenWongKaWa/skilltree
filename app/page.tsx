@@ -132,7 +132,7 @@ export default function HomePage() {
       </div>
 
       {/* Header */}
-      <header className="relative z-20 border-b backdrop-blur-md bg-[rgba(10,31,18,0.8)]">
+      <header className="sticky top-0 z-50 border-b backdrop-blur-md shadow-xl bg-[rgba(5,20,10,0.95)]">
         <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl forest-leaf border-2 border-[rgb(var(--lime-bright))] flex items-center justify-center text-xl shadow-lg animate-gentle-float">

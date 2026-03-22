@@ -15,6 +15,7 @@ const levelOrder = ['Beginner', 'Intermediate', 'Advanced'] as const
 function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: SkillListSidebarProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterLevel, setFilterLevel] = useState<string | null>(null)
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   // Group nodes by level
   const groupedNodes = nodes.reduce((acc, node) => {
@@ -47,63 +48,97 @@ function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: Ski
   const backgroundTheme = getBackgroundTheme()
 
   return (
-    <div className={`skill-sidebar ${backgroundTheme} w-72 h-full flex flex-col border-r border-[rgb(var(--border))]`}>
-      {/* Header */}
-      <div className="p-4 border-b border-[rgb(var(--border))]">
-        <h2 className="text-lg font-semibold text-[rgb(var(--foreground))] mb-3 flex items-center gap-2"
-            style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
-          <span className="text-xl">🌿</span>
-          Skill List
-        </h2>
+    <div className={`skill-sidebar ${backgroundTheme} h-full flex flex-col border-r border-[rgb(var(--border))] transition-all duration-300 ease-in-out ${isCollapsed ? 'w-12' : 'w-72'}`}>
+      {/* Collapse Toggle Button */}
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute top-20 -right-3 z-30 w-6 h-6 rounded-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] flex items-center justify-center shadow-md hover:bg-[rgb(var(--secondary))] transition-colors"
+      >
+        <svg
+          className={`w-3 h-3 text-[rgb(var(--muted-foreground))] transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
 
-        {/* Search */}
-        <div className="relative">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search skills..."
-            className="w-full px-3 py-2 bg-[rgb(var(--background))] border border-[rgb(var(--border))] rounded-lg text-sm text-[rgb(var(--foreground))] placeholder:text-[rgb(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--lime-medium))]"
-          />
-          <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(var(--muted-foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
+      {/* Header - Hidden when collapsed */}
+      {!isCollapsed && (
+        <div className="p-4 border-b border-[rgb(var(--border))]">
+          <h2 className="text-lg font-semibold text-[rgb(var(--foreground))] mb-3 flex items-center gap-2"
+              style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
+            <span className="text-xl">🌿</span>
+            Skill List
+          </h2>
 
-        {/* Level Filter */}
-        <div className="flex gap-2 mt-3">
-          {levelOrder.map(level => (
-            <button
-              key={level}
-              onClick={() => setFilterLevel(filterLevel === level ? null : level)}
-              className={`px-2 py-1 text-xs rounded-full transition-all ${
-                filterLevel === level
-                  ? 'bg-[rgb(var(--lime-medium))] text-white'
-                  : 'bg-[rgb(var(--secondary))] text-[rgb(var(--muted-foreground))] hover:bg-[rgb(var(--lime-medium))]/30'
-              }`}
-            >
-              {level}
-            </button>
-          ))}
+          {/* Search */}
+          <div className="relative">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search skills..."
+              className="w-full px-3 py-2 bg-[rgb(var(--background))] border border-[rgb(var(--border))] rounded-lg text-sm text-[rgb(var(--foreground))] placeholder:text-[rgb(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--lime-medium))]"
+            />
+            <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(var(--muted-foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          {/* Level Filter */}
+          <div className="flex gap-2 mt-3">
+            {levelOrder.map(level => (
+              <button
+                key={level}
+                onClick={() => setFilterLevel(filterLevel === level ? null : level)}
+                className={`px-2 py-1 text-xs rounded-full transition-all ${
+                  filterLevel === level
+                    ? 'bg-[rgb(var(--lime-medium))] text-white'
+                    : 'bg-[rgb(var(--secondary))] text-[rgb(var(--muted-foreground))] hover:bg-[rgb(var(--lime-medium))]/30'
+                }`}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Collapsed view - just show icons */}
+      {isCollapsed && (
+        <div className="flex flex-col items-center pt-4 gap-3">
+          <span className="text-lg">🌿</span>
+          <div className="flex flex-col gap-2">
+            {levelOrder.map((level, idx) => (
+              <span key={level} className="text-xs cursor-pointer" title={level}>
+                {level === 'Beginner' ? '●' : level === 'Intermediate' ? '◆' : '▲'}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Progress indicator */}
-      <div className="px-4 py-2 border-b border-[rgb(var(--border))] bg-[rgb(var(--background))]/50">
-        <div className="flex items-center justify-between text-xs mb-1">
-          <span className="text-[rgb(var(--muted-foreground))]">Overall Progress</span>
-          <span className="font-medium text-[rgb(var(--lime-medium))]">{progress}%</span>
+      {!isCollapsed && (
+        <div className="px-4 py-2 border-b border-[rgb(var(--border))] bg-[rgb(var(--background))]/50">
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="text-[rgb(var(--muted-foreground))]">Overall Progress</span>
+            <span className="font-medium text-[rgb(var(--lime-medium))]">{progress}%</span>
+          </div>
+          <div className="h-1.5 bg-[rgb(var(--secondary))] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-[rgb(var(--lime-medium))] to-[rgb(var(--lime-bright))] rounded-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
-        <div className="h-1.5 bg-[rgb(var(--secondary))] rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-[rgb(var(--lime-medium))] to-[rgb(var(--lime-bright))] rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+      )}
 
-      {/* Skill List */}
-      <div className="flex-1 overflow-y-auto">
+      {/* Skill List - Hidden when collapsed */}
+      {!isCollapsed && (
+        <div className="flex-1 overflow-y-auto">
         {levelOrder.map(level => {
           const levelNodes = filteredNodes.filter(n => n.level === level)
           if (levelNodes.length === 0) return null
@@ -168,31 +203,34 @@ function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: Ski
             <p className="text-sm">No skills found</p>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
-      {/* Footer with stats */}
-      <div className="p-4 border-t border-[rgb(var(--border))] bg-[rgb(var(--background))]/50">
-        <div className="flex justify-between text-xs">
-          <div className="text-center">
-            <div className="text-lg font-bold text-[rgb(var(--lime-medium))]">
-              {nodes.filter(n => n.status === 'learned').length}
+      {/* Footer with stats - Hidden when collapsed */}
+      {!isCollapsed && (
+        <div className="p-4 border-t border-[rgb(var(--border))] bg-[rgb(var(--background))]/50">
+          <div className="flex justify-between text-xs">
+            <div className="text-center">
+              <div className="text-lg font-bold text-[rgb(var(--lime-medium))]">
+                {nodes.filter(n => n.status === 'learned').length}
+              </div>
+              <div className="text-[rgb(var(--muted-foreground))]">Learned</div>
             </div>
-            <div className="text-[rgb(var(--muted-foreground))]">Learned</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-[rgb(var(--lime-bright))]">
-              {nodes.filter(n => n.status === 'available').length}
+            <div className="text-center">
+              <div className="text-lg font-bold text-[rgb(var(--lime-bright))]">
+                {nodes.filter(n => n.status === 'available').length}
+              </div>
+              <div className="text-[rgb(var(--muted-foreground))]">Available</div>
             </div>
-            <div className="text-[rgb(var(--muted-foreground))]">Available</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-[rgb(var(--muted))]">
-              {nodes.filter(n => n.status === 'locked').length}
+            <div className="text-center">
+              <div className="text-lg font-bold text-[rgb(var(--muted))]">
+                {nodes.filter(n => n.status === 'locked').length}
+              </div>
+              <div className="text-[rgb(var(--muted-foreground))]">Locked</div>
             </div>
-            <div className="text-[rgb(var(--muted-foreground))]">Locked</div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
