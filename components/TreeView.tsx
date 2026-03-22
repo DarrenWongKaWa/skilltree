@@ -1,41 +1,16 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef, useMemo, lazy, Suspense } from 'react'
+import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { useStore } from '@/store'
 import SkillListSidebar from '@/components/SkillListSidebar'
-import TreeBranch from '@/components/TreeBranch'
+import SkillTreeCanvas from '@/components/SkillTreeCanvas'
 import BackgroundEvolution from '@/components/BackgroundEvolution'
 import ThemeToggle from '@/components/ThemeToggle'
 import { generateQuiz } from '@/lib/api'
 import type { SkillNodeData, SkillTree, Quiz } from '@/types'
 
 const QuizModal = lazy(() => import('@/components/QuizModal'))
-
-// Fruit colors by level and status
-type FruitStyle = {
-  bg: string
-  glow: string
-  ring: string
-}
-
-const fruitStyles: Record<string, Record<string, FruitStyle>> = {
-  Beginner: {
-    learned: { bg: 'bg-gradient-to-br from-lime-400 to-green-500', glow: 'shadow-[0_0_20px_rgba(132,204,22,0.7)]', ring: 'ring-2 ring-lime-300' },
-    available: { bg: 'bg-gradient-to-br from-lime-300 to-green-400', glow: 'shadow-[0_0_12px_rgba(132,204,22,0.5)]', ring: 'ring-2 ring-lime-400/50' },
-    locked: { bg: 'bg-gradient-to-br from-gray-300 to-gray-400', glow: '', ring: '' },
-  },
-  Intermediate: {
-    learned: { bg: 'bg-gradient-to-br from-amber-400 to-orange-500', glow: 'shadow-[0_0_20px_rgba(251,146,60,0.7)]', ring: 'ring-2 ring-amber-300' },
-    available: { bg: 'bg-gradient-to-br from-amber-300 to-orange-400', glow: 'shadow-[0_0_12px_rgba(251,146,60,0.5)]', ring: 'ring-2 ring-amber-400/50' },
-    locked: { bg: 'bg-gradient-to-br from-gray-300 to-gray-400', glow: '', ring: '' },
-  },
-  Advanced: {
-    learned: { bg: 'bg-gradient-to-br from-purple-400 to-pink-500', glow: 'shadow-[0_0_20px_rgba(236,72,153,0.7)]', ring: 'ring-2 ring-purple-300' },
-    available: { bg: 'bg-gradient-to-br from-purple-300 to-pink-400', glow: 'shadow-[0_0_12px_rgba(236,72,153,0.5)]', ring: 'ring-2 ring-pink-400/50' },
-    locked: { bg: 'bg-gradient-to-br from-gray-300 to-gray-400', glow: '', ring: '' },
-  },
-}
 
 export default function TreeView({ treeId }: { treeId: string }) {
   const router = useRouter()
@@ -50,146 +25,18 @@ export default function TreeView({ treeId }: { treeId: string }) {
   const [zoom, setZoom] = useState(1)
   const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set())
   const [pan, setPan] = useState({ x: 0, y: 0 })
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
 
-  // Calculate layout - tree grows from bottom to top
-  const layout = useMemo(() => {
-    if (!tree) return { nodes: [], branches: [], maxY: 800 }
-
-    // Find root nodes (no prerequisites)
-    const rootNodes = tree.nodes.filter(n => n.prerequisites.length === 0)
-
-    // Build child map for tree traversal
-    const childMap: Record<string, string[]> = {}
-    tree.nodes.forEach(n => { childMap[n.id] = n.children || [] })
-
-    // Calculate all hidden nodes (descendants of collapsed nodes)
-    const getAllDescendants = (nodeId: string): Set<string> => {
-      const descendants = new Set<string>()
-      const stack = [...(childMap[nodeId] || [])]
-      while (stack.length > 0) {
-        const childId = stack.pop()!
-        if (!descendants.has(childId)) {
-          descendants.add(childId)
-          stack.push(...(childMap[childId] || []))
-        }
-      }
-      return descendants
-    }
-
-    const hiddenNodes = new Set<string>()
-    collapsedNodes.forEach(collapsedId => {
-      getAllDescendants(collapsedId).forEach(id => hiddenNodes.add(id))
-    })
-
-    // Group nodes by level (distance from root) - only visible nodes
-    const levelMap = new Map<string, number>()
-    const assignLevel = (nodeId: string, level: number) => {
-      if (levelMap.has(nodeId)) return
-      if (hiddenNodes.has(nodeId)) return // Skip hidden nodes
-      levelMap.set(nodeId, level)
-      const node = tree.nodes.find(n => n.id === nodeId)
-      if (node) {
-        (node.children || []).forEach(childId => {
-          if (!hiddenNodes.has(childId)) {
-            assignLevel(childId, level + 1)
-          }
-        })
-      }
-    }
-
-    rootNodes.forEach(root => {
-      if (!hiddenNodes.has(root.id)) {
-        assignLevel(root.id, 0)
-      }
-    })
-    tree.nodes.forEach(node => {
-      if (!levelMap.has(node.id) && !hiddenNodes.has(node.id)) levelMap.set(node.id, 0)
-    })
-
-    // Calculate positions - only for visible nodes
-    const visibleNodes = tree.nodes.filter(n => !hiddenNodes.has(n.id))
-    const nodesByLevel = visibleNodes.reduce((acc, node) => {
-      const level = levelMap.get(node.id) || 0
-      if (!acc[level]) acc[level] = []
-      acc[level].push(node)
-      return acc
-    }, {} as Record<number, SkillNodeData[]>)
-
-    const maxLevel = Math.max(...Array.from(levelMap.values()), 0)
-    const levelHeight = 150
-    const baseY = 700
-    const nodeWidth = 140
-
-    // Position nodes - only visible ones
-    const positionedNodes = visibleNodes.map(node => {
-      const level = levelMap.get(node.id) || 0
-      const nodesAtLevel = nodesByLevel[level] || []
-      const indexAtLevel = nodesAtLevel.indexOf(node)
-      const totalAtLevel = nodesAtLevel.length
-
-      const levelWidth = totalAtLevel * nodeWidth
-      const startX = (800 - levelWidth) / 2 + nodeWidth / 2
-
-      return {
-        node,
-        x: startX + indexAtLevel * nodeWidth,
-        y: baseY - level * levelHeight,
-        level,
-      }
-    })
-
-    // Create visible node map for quick lookup
-    const visibleNodeMap = new Set(visibleNodes.map(n => n.id))
-
-    // Create branches (edges between parent and children) - only for visible nodes
-    const branches = positionedNodes.flatMap(parent => {
-      return (parent.node.children || [])
-        .filter(childId => visibleNodeMap.has(childId))
-        .map(childId => {
-          const child = positionedNodes.find(p => p.node.id === childId)
-          if (!child) return null
-
-          const branchLevel = Math.min(parent.level, maxLevel)
-
-          return {
-            startX: parent.x,
-            startY: parent.y + 25,
-            endX: child.x,
-            endY: child.y - 25,
-            level: branchLevel,
-            isLearned: parent.node.status === 'learned',
-            key: `${parent.node.id}-${childId}`,
-          }
-        }).filter(Boolean)
-    }).filter(Boolean) as {
-      startX: number
-      startY: number
-      endX: number
-      endY: number
-      level: number
-      isLearned: boolean
-      key: string
-    }[]
-
-    return { nodes: positionedNodes, branches, maxY: baseY + 50 }
-  }, [tree, collapsedNodes])
-
-  // Trigger growth animation on mount - bottom to top
+  // Trigger growth animation on mount
   useEffect(() => {
-    if (tree && layout.nodes.length > 0) {
-      const sortedIndices = layout.nodes
-        .map((_, i) => i)
-        .sort((a, b) => layout.nodes[b].y - layout.nodes[a].y)
-
-      sortedIndices.forEach((nodeIndex, sortedOrder) => {
+    if (tree && tree.nodes.length > 0) {
+      // Stagger animations for bottom-to-top reveal
+      tree.nodes.forEach((node, index) => {
         setTimeout(() => {
-          setGrowthAnimation(prev => ({ ...prev, [nodeIndex]: true }))
-        }, sortedOrder * 100)
+          setGrowthAnimation(prev => ({ ...prev, [node.id]: true }))
+        }, index * 100)
       })
     }
-  }, [tree, layout.nodes.length])
+  }, [tree?.id])
 
   const onNodeSelect = useCallback((node: SkillNodeData) => {
     setSelectedNode(prev => prev?.id === node.id ? null : node)
@@ -211,7 +58,7 @@ export default function TreeView({ treeId }: { treeId: string }) {
     updateNodeStatus(treeId, nodeId, 'learned')
     setGrowthAnimation(prev => ({ ...prev, [nodeId]: true }))
     setSelectedNode(prev => prev?.id === nodeId ? { ...prev, status: 'learned' } : prev)
-    // Use getTree to get fresh data from store, not closure
+
     const freshTree = getTree(treeId)
     if (freshTree) {
       const children = freshTree.nodes.filter((n) => n.prerequisites.includes(nodeId))
@@ -248,30 +95,6 @@ export default function TreeView({ treeId }: { treeId: string }) {
       handleDirectLight(quiz.nodeId)
     }
   }, [quiz, handleDirectLight])
-
-  const zoomIn = () => setZoom(prev => Math.min(prev + 0.2, 2))
-  const zoomOut = () => setZoom(prev => Math.max(prev - 0.2, 0.4))
-  const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }) }
-
-  // Pan handlers for drag-to-pan
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return // Only left click
-    setIsDragging(true)
-    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y })
-  }
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return
-    setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y })
-  }
-
-  const handleMouseUp = () => {
-    setIsDragging(false)
-  }
-
-  const handleMouseLeave = () => {
-    setIsDragging(false)
-  }
 
   if (!tree) {
     return (
@@ -344,43 +167,8 @@ export default function TreeView({ treeId }: { treeId: string }) {
             </div>
           </div>
 
-          {/* Right: Zoom controls + Theme */}
-          <div className="flex items-center gap-2">
-            <div className="glass rounded-xl shadow-lg border border-[rgb(var(--border))] p-1 flex items-center gap-1">
-              <button
-                onClick={zoomOut}
-                className="p-2 rounded-lg hover:bg-[rgb(var(--secondary))] transition-colors"
-                title="Zoom out"
-              >
-                <svg className="w-4 h-4 text-[rgb(var(--foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                </svg>
-              </button>
-              <span className="text-xs text-[rgb(var(--foreground))] px-2 font-medium min-w-[3rem] text-center">
-                {Math.round(zoom * 100)}%
-              </span>
-              <button
-                onClick={zoomIn}
-                className="p-2 rounded-lg hover:bg-[rgb(var(--secondary))] transition-colors"
-                title="Zoom in"
-              >
-                <svg className="w-4 h-4 text-[rgb(var(--foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </button>
-              <div className="w-px h-5 bg-[rgb(var(--border))]" />
-              <button
-                onClick={resetView}
-                className="p-2 rounded-lg hover:bg-[rgb(var(--secondary))] transition-colors"
-                title="Reset view"
-              >
-                <svg className="w-4 h-4 text-[rgb(var(--foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                </svg>
-              </button>
-            </div>
-            <ThemeToggle />
-          </div>
+          {/* Right: Theme toggle */}
+          <ThemeToggle />
         </div>
 
         {/* Quiz loading overlay */}
@@ -399,141 +187,20 @@ export default function TreeView({ treeId }: { treeId: string }) {
         <BackgroundEvolution progress={percent} containerRef={containerRef} />
 
         {/* Tree Canvas with Zoom & Pan */}
-        <div
-          className={`absolute inset-0 z-10 overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-        >
-          <div
-            className="relative transition-transform duration-300 ease-out"
-            style={{
-              width: '800px',
-              height: `${layout.maxY + 60}px`,
-              margin: '0 auto',
-              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-              transformOrigin: 'center 70%',
-            }}
-          >
-            {/* Seed Root Node - Topic Seed at bottom */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[rgb(var(--lime-dark))] to-[rgb(var(--lime-medium))] shadow-lg flex items-center justify-center animate-pulse">
-                <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 22V12M12 12C12 12 7 9 7 5C7 3 9 2 12 2C15 2 17 3 17 5C17 9 12 12 12 12ZM5 12H2M22 12H19M12 12V22"/>
-                </svg>
-              </div>
-              <div className="mt-2 px-4 py-1.5 rounded-full bg-[rgb(var(--card))]/90 border border-[rgb(var(--border))] shadow-md">
-                <span className="text-sm font-bold text-[rgb(var(--foreground))]" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
-                  {tree.topic}
-                </span>
-              </div>
-            </div>
-            {/* Tree SVG Canvas (branches) */}
-            <svg
-              className="absolute inset-0 w-full h-full pointer-events-none"
-              viewBox="0 0 800 750"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              {layout.branches.map(branch => (
-                <TreeBranch
-                  key={branch.key}
-                  startX={branch.startX}
-                  startY={branch.startY}
-                  endX={branch.endX}
-                  endY={branch.endY}
-                  level={branch.level}
-                  isLearned={branch.isLearned}
-                  isAnimating={growthAnimation[branch.key]}
-                />
-              ))}
-            </svg>
+        <SkillTreeCanvas
+          tree={tree}
+          collapsedNodes={collapsedNodes}
+          selectedNode={selectedNode}
+          growthAnimation={growthAnimation}
+          zoom={zoom}
+          pan={pan}
+          onNodeSelect={onNodeSelect}
+          onCollapse={handleCollapse}
+          onPanChange={setPan}
+          onZoomChange={setZoom}
+        />
 
-            {/* Fruit Nodes */}
-            {layout.nodes.map(({ node, x, y }, index) => {
-              const sortedIndices = layout.nodes
-                .map((_, i) => i)
-                .sort((a, b) => layout.nodes[b].y - layout.nodes[a].y)
-              const sortedOrder = sortedIndices.indexOf(index)
-              const isCollapsed = node.children.length > 0 && collapsedNodes.has(node.id)
-              const isSelected = selectedNode?.id === node.id
-
-              const levelStyle = fruitStyles[node.level as keyof typeof fruitStyles] || fruitStyles.Beginner
-              const statusStyle = levelStyle[node.status as keyof typeof levelStyle] || levelStyle.locked
-
-              return (
-                <div
-                  key={node.id}
-                  className={`absolute transition-all duration-700 ease-out ${
-                    growthAnimation[index] ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
-                  }`}
-                  style={{
-                    left: `${x - 24}px`,
-                    top: `${y - 24}px`,
-                    transitionDelay: `${sortedOrder * 80}ms`,
-                  }}
-                >
-                  {/* Fruit Node (clickable) */}
-                  <button
-                    onClick={() => {
-                      if (node.children.length > 0 && (node.status === 'learned' || node.status === 'available')) {
-                        handleCollapse(node.id)
-                      }
-                      onNodeSelect(node)
-                    }}
-                    className={`
-                      relative w-12 h-12 rounded-full
-                      ${statusStyle.bg} ${statusStyle.glow}
-                      transition-all duration-300 ease-out
-                      hover:scale-110 hover:-translate-y-1
-                      ${isSelected ? statusStyle.ring : ''}
-                      ${node.status === 'learned' ? 'animate-pulse' : ''}
-                      ${isCollapsed ? 'opacity-60' : ''}
-                      flex items-center justify-center
-                    `}
-                    title={node.name}
-                  >
-                    {/* Status icon inside fruit */}
-                    {node.status === 'learned' && (
-                      <svg className="w-5 h-5 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                    {node.status === 'locked' && (
-                      <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    )}
-                    {node.status === 'available' && !isCollapsed && (
-                      <span className="w-2 h-2 rounded-full bg-white/80" />
-                    )}
-
-                    {/* Collapse indicator */}
-                    {node.children.length > 0 && (
-                      <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] flex items-center justify-center transition-transform ${isCollapsed ? 'rotate-180' : ''}`}>
-                        <svg className="w-3 h-3 text-[rgb(var(--muted-foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    )}
-                  </button>
-
-                  {/* Node label below fruit */}
-                  <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 text-center min-w-[80px] max-w-[100px] ${node.status === 'locked' ? 'opacity-50' : ''}`}>
-                    <div className="text-xs font-medium text-[rgb(var(--foreground))] line-clamp-2 leading-tight">
-                      {node.name}
-                    </div>
-                    <div className="text-[10px] text-[rgb(var(--muted-foreground))]">
-                      {node.level}
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Skill Detail Panel - Square popup */}
+        {/* Skill Detail Panel */}
         {selectedNode && (
           <div className="absolute right-4 top-28 w-80 z-30 animate-fade-in">
             <div className="glass rounded-2xl shadow-xl border border-[rgb(var(--border))] p-5">
@@ -542,7 +209,9 @@ export default function TreeView({ treeId }: { treeId: string }) {
                 <div className="flex items-center gap-3">
                   {/* Level indicator fruit */}
                   <div className={`w-10 h-10 rounded-full ${
-                    fruitStyles[selectedNode.level as keyof typeof fruitStyles]?.[selectedNode.status as keyof typeof fruitStyles.beginner]?.bg || 'bg-gray-300'
+                    selectedNode.level === 'Beginner' ? 'bg-gradient-to-br from-lime-400 to-green-500' :
+                    selectedNode.level === 'Intermediate' ? 'bg-gradient-to-br from-amber-400 to-orange-500' :
+                    'bg-gradient-to-br from-purple-400 to-pink-500'
                   } flex items-center justify-center`}>
                     {selectedNode.status === 'learned' ? (
                       <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,118 +1,126 @@
 'use client'
 
 import { memo } from 'react'
-import { Handle, Position } from '@xyflow/react'
-import type { NodeProps } from '@xyflow/react'
 import type { SkillNodeData } from '@/types'
 
-// Lime color scheme - fresh green tones
-const levelColors = {
-  'Beginner': {
-    bg: 'bg-[rgb(var(--lime-bright-bg))] dark:bg-[rgb(var(--lime-bright-bg))]',
-    border: 'border-[rgb(var(--lime-bright))] dark:border-[rgb(var(--lime-bright))]',
-    text: 'text-[rgb(var(--lime-dark))] dark:text-[rgb(var(--lime-bright))]',
-    dot: 'bg-[rgb(var(--lime-bright))]',
-    glow: 'hover:shadow-[0_0_12px_rgba(180,220,80,0.5)] dark:hover:shadow-[0_0_12px_rgba(150,190,100,0.4)]',
-  },
-  'Intermediate': {
-    bg: 'bg-[rgb(var(--lime-medium-bg))] dark:bg-[rgb(var(--lime-medium-bg))]',
-    border: 'border-[rgb(var(--lime-medium))] dark:border-[rgb(var(--lime-medium))]',
-    text: 'text-[rgb(var(--lime-dark))] dark:text-[rgb(var(--lime-medium))]',
-    dot: 'bg-[rgb(var(--lime-medium))]',
-    glow: 'hover:shadow-[0_0_12px_rgba(120,180,60,0.5)] dark:hover:shadow-[0_0_12px_rgba(100,150,60,0.4)]',
-  },
-  'Advanced': {
-    bg: 'bg-[rgb(var(--lime-dark-bg))] dark:bg-[rgb(var(--lime-dark-bg))]',
-    border: 'border-[rgb(var(--lime-dark))] dark:border-[rgb(var(--lime-dark))]',
-    text: 'text-[rgb(var(--lime-dark))] dark:text-[rgb(var(--lime-dark))]',
-    dot: 'bg-[rgb(var(--lime-dark))]',
-    glow: 'hover:shadow-[0_0_12px_rgba(80,140,40,0.5)] dark:hover:shadow-[0_0_12px_rgba(80,130,50,0.4)]',
-  },
-} as const
+// Fruit colors by level and status
+type FruitStyle = {
+  bg: string
+  glow: string
+  ring: string
+}
 
-const statusStyles = {
-  locked: {
-    opacity: 'opacity-40',
-    filter: 'grayscale(80%)',
-    cursor: 'not-allowed',
-    ring: '',
+const FRUIT_STYLES: Record<string, Record<string, FruitStyle>> = {
+  Beginner: {
+    learned: { bg: 'bg-gradient-to-br from-lime-400 to-green-500', glow: 'shadow-[0_0_20px_rgba(132,204,22,0.7)]', ring: 'ring-2 ring-lime-300' },
+    available: { bg: 'bg-gradient-to-br from-lime-300 to-green-400', glow: 'shadow-[0_0_12px_rgba(132,204,22,0.5)]', ring: 'ring-2 ring-lime-400/50' },
+    locked: { bg: 'bg-gradient-to-br from-gray-300 to-gray-400', glow: '', ring: '' },
   },
-  available: {
-    opacity: 'opacity-100',
-    filter: 'none',
-    cursor: 'pointer',
-    ring: 'hover:ring-2 hover:ring-[rgb(var(--lime-medium))] hover:ring-offset-2',
+  Intermediate: {
+    learned: { bg: 'bg-gradient-to-br from-amber-400 to-orange-500', glow: 'shadow-[0_0_20px_rgba(251,146,60,0.7)]', ring: 'ring-2 ring-amber-300' },
+    available: { bg: 'bg-gradient-to-br from-amber-300 to-orange-400', glow: 'shadow-[0_0_12px_rgba(251,146,60,0.5)]', ring: 'ring-2 ring-amber-400/50' },
+    locked: { bg: 'bg-gradient-to-br from-gray-300 to-gray-400', glow: '', ring: '' },
   },
-  learned: {
-    opacity: 'opacity-100',
-    filter: 'none',
-    cursor: 'pointer',
-    ring: 'ring-2 ring-[rgb(var(--lime-medium))] ring-offset-2 animate-lime-glow',
+  Advanced: {
+    learned: { bg: 'bg-gradient-to-br from-purple-400 to-pink-500', glow: 'shadow-[0_0_20px_rgba(236,72,153,0.7)]', ring: 'ring-2 ring-purple-300' },
+    available: { bg: 'bg-gradient-to-br from-purple-300 to-pink-400', glow: 'shadow-[0_0_12px_rgba(236,72,153,0.5)]', ring: 'ring-2 ring-pink-400/50' },
+    locked: { bg: 'bg-gradient-to-br from-gray-300 to-gray-400', glow: '', ring: '' },
   },
-} as const
+}
 
-function SkillNodeComponent(props: NodeProps) {
-  const data = props.data as unknown as SkillNodeData
-  const colors = levelColors[data.level as keyof typeof levelColors] || levelColors['Beginner']
-  const status = statusStyles[data.status] || statusStyles.available
-  const isLearned = data.status === 'learned'
-  const isLocked = data.status === 'locked'
-  const isSelected = (props as any).selected
+interface SkillNodeProps {
+  node: SkillNodeData
+  x: number
+  y: number
+  isSelected: boolean
+  isCollapsed: boolean
+  isAnimating: boolean
+  animationDelay: number
+  onSelect: (node: SkillNodeData) => void
+  onCollapse: (nodeId: string) => void
+}
+
+function SkillNodeComponent({
+  node,
+  x,
+  y,
+  isSelected,
+  isCollapsed,
+  isAnimating,
+  animationDelay,
+  onSelect,
+  onCollapse,
+}: SkillNodeProps) {
+  const levelStyle = FRUIT_STYLES[node.level] || FRUIT_STYLES.Beginner
+  const statusStyle = levelStyle[node.status] || levelStyle.locked
+
+  const handleClick = () => {
+    if (node.children.length > 0 && (node.status === 'learned' || node.status === 'available')) {
+      onCollapse(node.id)
+    }
+    onSelect(node)
+  }
 
   return (
     <div
-      className={`
-        lime-tablet relative px-4 py-3 rounded-lg border-2 min-w-[150px] max-w-[170px]
-        ${colors.bg} ${colors.border}
-        ${status.opacity} ${status.filter}
-        transition-all duration-500 ease-out
-        hover:scale-[1.02] hover:-translate-y-0.5
-        ${status.ring}
-        ${isSelected ? 'ring-4 ring-[rgb(var(--lime-bright))] ring-offset-2 shadow-xl' : ''}
-      `}
+      className={`absolute transition-all duration-700 ease-out ${
+        isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
+      }`}
+      style={{
+        left: `${x - 24}px`,
+        top: `${y - 24}px`,
+        transitionDelay: `${animationDelay}ms`,
+      }}
     >
-      {/* Top Handle */}
-      <Handle
-        type="target"
-        position={Position.Top}
-        className="!w-3.5 !h-3.5 !bg-[rgb(var(--secondary))] !border-2 !border-[rgb(var(--border))] !-top-1.5"
-      />
-
-      {/* Level indicator */}
-      <div className="flex items-center gap-1.5 mb-1.5">
-        <span className={`w-2 h-2 rounded-full ${colors.dot} shadow-sm`} />
-        <span className={`text-xs font-medium ${colors.text}`}>{data.level}</span>
-        {isLearned && (
-          <span className="ml-auto text-[rgb(var(--lime-medium))] text-sm">✓</span>
-        )}
-        {isLocked && (
-          <span className="ml-auto text-[rgb(var(--muted-foreground))] text-sm">🔒</span>
-        )}
-      </div>
-
-      {/* Node name */}
-      <div
-        className={`font-semibold text-sm leading-tight ${
-          isLocked
-            ? 'text-[rgb(var(--muted-foreground))]'
-            : 'text-[rgb(var(--foreground))]'
-        }`}
-        style={{ fontFamily: "'Noto Serif', Georgia, serif" }}
+      {/* Fruit Node */}
+      <button
+        onClick={handleClick}
+        className={`
+          relative w-12 h-12 rounded-full
+          ${statusStyle.bg} ${statusStyle.glow}
+          transition-all duration-300 ease-out
+          hover:scale-110 hover:-translate-y-1
+          ${isSelected ? statusStyle.ring : ''}
+          ${node.status === 'learned' ? 'animate-pulse' : ''}
+          ${isCollapsed ? 'opacity-60' : ''}
+          flex items-center justify-center
+        `}
+        title={node.name}
       >
-        {data.name}
-      </div>
+        {/* Status icon */}
+        {node.status === 'learned' && (
+          <svg className="w-5 h-5 text-white drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+        )}
+        {node.status === 'locked' && (
+          <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        )}
+        {node.status === 'available' && !isCollapsed && (
+          <span className="w-2 h-2 rounded-full bg-white/80" />
+        )}
 
-      {/* Description */}
-      <div className="text-xs text-[rgb(var(--muted-foreground))] mt-1.5 line-clamp-2 leading-relaxed">
-        {data.description}
-      </div>
+        {/* Collapse indicator */}
+        {node.children.length > 0 && (
+          <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] flex items-center justify-center transition-transform ${isCollapsed ? 'rotate-180' : ''}`}>
+            <svg className="w-3 h-3 text-[rgb(var(--muted-foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        )}
+      </button>
 
-      {/* Bottom Handle */}
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        className="!w-3.5 !h-3.5 !bg-[rgb(var(--secondary))] !border-2 !border-[rgb(var(--border))] !-bottom-1.5"
-      />
+      {/* Label */}
+      <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 text-center min-w-[80px] max-w-[100px] ${node.status === 'locked' ? 'opacity-50' : ''}`}>
+        <div className="text-xs font-medium text-[rgb(var(--foreground))] line-clamp-2 leading-tight">
+          {node.name}
+        </div>
+        <div className="text-[10px] text-[rgb(var(--muted-foreground))]">
+          {node.level}
+        </div>
+      </div>
     </div>
   )
 }
