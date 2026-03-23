@@ -490,3 +490,144 @@ html {
 .dark .animate-learning-pulse {
   animation: learning-pulse 1.5s ease-in-out infinite;
 }
+
+/* ========== iOS Optimizations ========== */
+
+/* Phase 2: Safe area padding for notch/dynamic island */
+:root {
+  --sat: env(safe-area-inset-top);
+  --sar: env(safe-area-inset-right);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
+}
+
+/* Prevent rubber-banding on html/body */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+}
+
+/* Full screen canvas - no clipping by notch */
+#__next,
+body > div:first-child {
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Phase 3: Eliminate 300ms tap delay + prevent text selection */
+button,
+[role="button"],
+a,
+.node-button,
+.interactive {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent text selection and image save menu on interactive elements */
+.no-select {
+  -webkit-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* React Flow canvas - prevent selection and callout */
+.react-flow__renderer,
+.react-flow__pane {
+  -webkit-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Skill nodes - touch-friendly with no selection */
+.react-flow__node {
+  -webkit-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* Phase 3: Inertia scrolling for sidebar containers */
+.sidebar-scroll,
+.sidebar-content {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Phase 4: GPU acceleration for smooth animations */
+.gpu-accelerated,
+.react-flow__node,
+.react-flow__edge,
+.react-flow__controls,
+.react-flow__minimap {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Phase 4: Font smoothing */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Phase 4: Hover states - only on pointer devices (no stuck hover on iOS) */
+@media (hover: hover) and (pointer: fine) {
+  .node-button:hover {
+    transform: scale(1.05);
+  }
+
+  .react-flow__controls button:hover {
+    background: rgb(var(--secondary));
+  }
+}
+
+/* Active state feedback for touch (instead of hover) */
+@media (hover: none) and (pointer: coarse) {
+  .node-button:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+
+  button:active,
+  [role="button"]:active {
+    opacity: 0.7;
+  }
+}
+
+/* Safe area padding for fixed top bar */
+.top-bar-safe {
+  padding-top: max(env(safe-area-inset-top), 1rem);
+}
+
+/* Safe area padding for fixed bottom elements */
+.bottom-bar-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+}
+
+/* Full screen canvas wrapper */
+.canvas-fullscreen {
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Skill detail panel - safe area aware */
+.detail-panel-safe {
+  right: max(env(safe-area-inset-right), 1rem);
+}
+
+/* Prevent iOS double-tap zoom on interactive elements */
+.no-double-tap-zoom {
+  touch-action: manipulation;
+}

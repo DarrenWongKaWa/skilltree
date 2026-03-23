@@ -66,10 +66,10 @@ function SkillNodeFlowComponent({ data, selected }: NodeProps) {
       <button
         onClick={handleClick}
         className={`
-          relative w-12 h-12 rounded-full cursor-pointer select-none touch-none
+          relative w-12 h-12 rounded-full cursor-pointer
+          no-select no-double-tap-zoom gpu-accelerated
           ${statusStyle.bg} ${statusStyle.glow}
           transition-all duration-300 ease-out
-          hover:scale-110 hover:-translate-y-1
           ${selected ? statusStyle.ring : ''}
           ${node.status === 'learned' ? 'animate-pulse' : ''}
           ${node.isCollapsed ? 'opacity-60' : ''}
@@ -96,7 +96,7 @@ function SkillNodeFlowComponent({ data, selected }: NodeProps) {
         {node.children.length > 0 && (
           <div
             onClick={handleCollapseClick}
-            className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] flex items-center justify-center transition-transform cursor-pointer hover:bg-[rgb(var(--secondary))] ${node.isCollapsed ? 'rotate-180' : ''}`}
+            className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] flex items-center justify-center transition-transform cursor-pointer no-select no-double-tap-zoom gpu-accelerated ${node.isCollapsed ? 'rotate-180' : ''}`}
           >
             <svg className="w-3 h-3 text-[rgb(var(--muted-foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

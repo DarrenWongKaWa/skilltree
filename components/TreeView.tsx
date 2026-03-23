@@ -166,7 +166,7 @@ export default function TreeView({ treeId }: { treeId: string }) {
       {/* Main Tree Area */}
       <div className="flex-1 relative overflow-hidden" ref={containerRef}>
         {/* Top Bar */}
-        <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
+        <div className="absolute top-bar-safe left-4 right-4 z-20 flex items-center justify-between">
           {/* Left: Title card */}
           <div className="glass rounded-2xl shadow-lg border border-[rgb(var(--border))] p-3">
             <h1 className="font-bold text-[rgb(var(--foreground))] text-sm" style={{ fontFamily: "'Noto Serif', Georgia, serif" }}>
@@ -217,7 +217,7 @@ export default function TreeView({ treeId }: { treeId: string }) {
 
         {/* Skill Detail Panel */}
         {selectedNode && (
-          <div className="absolute right-4 top-28 w-80 z-30 animate-fade-in">
+          <div className="absolute detail-panel-safe top-28 w-80 z-30 animate-fade-in">
             <div className="glass rounded-2xl shadow-xl border border-[rgb(var(--border))] p-5">
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
