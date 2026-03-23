@@ -26,6 +26,10 @@
   --lime-medium-bg: 225, 242, 205;
   --lime-dark: 65, 125, 35;
   --lime-dark-bg: 218, 240, 198;
+
+  /* Seed/root colors - earthy brown */
+  --seed-brown: 139, 90, 43;
+  --seed-dark: 101, 67, 33;
 }
 
 .dark {
@@ -53,6 +57,10 @@
   --lime-medium-bg: 30, 55, 28;
   --lime-dark: 85, 155, 55;
   --lime-dark-bg: 25, 48, 22;
+
+  /* Seed/root colors - earthy brown - Dark theme */
+  --seed-brown: 160, 110, 60;
+  --seed-dark: 120, 80, 40;
 }
 
 * {
@@ -489,6 +497,20 @@ html {
 
 .dark .animate-learning-pulse {
   animation: learning-pulse 1.5s ease-in-out infinite;
+}
+
+/* Edge flow animation for fluorescent sap effect */
+@keyframes edgeFlow {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.edge-flow-animation {
+  animation: edgeFlow 2.5s linear infinite;
 }
 
 /* ========== iOS Optimizations ========== */

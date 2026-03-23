@@ -63,17 +63,17 @@ function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: Ski
       {/* Sidebar - Fixed on mobile, relative on desktop */}
       <div className={`
         ${backgroundTheme} h-full flex flex-col border-r border-[rgb(var(--border))]
-        transition-transform duration-300 ease-in-out
+        transition-all duration-300 ease-in-out
         ${isCollapsed
           ? isMobile
             ? '-translate-x-full' // Mobile: hide off-screen
-            : 'translate-x-0 w-0 overflow-hidden border-0' // Desktop: collapse to 0 width
+            : 'w-0 overflow-hidden border-0' // Desktop: collapse to 0 width (not using translate)
           : isMobile
             ? 'translate-x-0 fixed inset-y-0 left-0 z-50 w-72 shadow-2xl'
-            : 'translate-x-0 relative w-72'
+            : 'w-72'
         }
       `}>
-        {/* Collapse Toggle Button - visible when collapsed on mobile to re-open */}
+        {/* Mobile collapse button - visible when collapsed on mobile to re-open */}
         {isMobile && isCollapsed && (
           <button
             onClick={() => setIsCollapsed(false)}
@@ -81,27 +81,6 @@ function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: Ski
           >
             <svg className="w-3 h-3 text-[rgb(var(--muted-foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        )}
-
-        {/* Desktop collapse button - always visible */}
-        {!isMobile && (
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`
-              absolute top-20 w-6 h-6 rounded-full bg-[rgb(var(--card))] border border-[rgb(var(--border))]
-              flex items-center justify-center shadow-md hover:bg-[rgb(var(--secondary))] transition-colors
-              ${isCollapsed ? '-right-3' : '-right-3'}
-            `}
-          >
-            <svg
-              className={`w-3 h-3 text-[rgb(var(--muted-foreground))] transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
         )}
@@ -293,6 +272,26 @@ function SkillListSidebar({ nodes, selectedNodeId, onNodeSelect, progress }: Ski
           </div>
         </div>
       </div>
+
+      {/* Desktop collapse button - OUTSIDE the sidebar so it's always accessible when collapsed */}
+      {!isMobile && (
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute top-20 w-6 h-6 rounded-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] flex items-center justify-center shadow-md hover:bg-[rgb(var(--secondary))] transition-all duration-300 z-20"
+          style={{
+            left: isCollapsed ? '0px' : '288px',
+          }}
+        >
+          <svg
+            className={`w-3 h-3 text-[rgb(var(--muted-foreground))] transition-transform duration-300 ${isCollapsed ? 'rotate-0' : 'rotate-180'}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      )}
     </>
   )
 }

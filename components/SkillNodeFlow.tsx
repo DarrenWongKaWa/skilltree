@@ -1,6 +1,6 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useState, useCallback, useEffect } from 'react'
 import { Handle, Position } from '@xyflow/react'
 import type { NodeProps } from '@xyflow/react'
 import type { SkillNodeData } from '@/types'
@@ -42,16 +42,27 @@ function SkillNodeFlowComponent({ data, selected }: NodeProps) {
   const levelStyle = FRUIT_STYLES[node.level] || FRUIT_STYLES.Beginner
   const statusStyle = levelStyle[node.status] || levelStyle.locked
 
+  // Local state for immediate collapse feedback before React re-renders
+  const [localCollapsed, setLocalCollapsed] = useState(node.isCollapsed ?? false)
+
+  // Sync local state when parent prop changes (e.g., after other node interactions)
+  useEffect(() => {
+    setLocalCollapsed(node.isCollapsed ?? false)
+  }, [node.isCollapsed])
+
   const handleClick = () => {
     node.onNodeClick?.(node)
   }
 
-  const handleCollapseClick = (e: React.MouseEvent) => {
+  const handleCollapseClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
     if (node.children.length > 0 && (node.status === 'learned' || node.status === 'available')) {
+      // Immediately toggle local state for instant visual feedback
+      setLocalCollapsed(prev => !prev)
+      // Then propagate to parent
       node.onCollapse?.(node.id)
     }
-  }
+  }, [node.children.length, node.status, node.onCollapse, node.id])
 
   return (
     <div className="relative">
@@ -72,7 +83,7 @@ function SkillNodeFlowComponent({ data, selected }: NodeProps) {
           transition-all duration-300 ease-out
           ${selected ? statusStyle.ring : ''}
           ${node.status === 'learned' ? 'animate-pulse' : ''}
-          ${node.isCollapsed ? 'opacity-60' : ''}
+          ${localCollapsed ? 'opacity-60' : ''}
           flex items-center justify-center
         `}
         title={node.name}
@@ -88,7 +99,7 @@ function SkillNodeFlowComponent({ data, selected }: NodeProps) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         )}
-        {node.status === 'available' && !node.isCollapsed && (
+        {node.status === 'available' && !localCollapsed && (
           <span className="w-2 h-2 rounded-full bg-white/80" />
         )}
 
@@ -96,7 +107,7 @@ function SkillNodeFlowComponent({ data, selected }: NodeProps) {
         {node.children.length > 0 && (
           <div
             onClick={handleCollapseClick}
-            className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] flex items-center justify-center transition-transform cursor-pointer no-select no-double-tap-zoom gpu-accelerated ${node.isCollapsed ? 'rotate-180' : ''}`}
+            className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[rgb(var(--card))] border border-[rgb(var(--border))] flex items-center justify-center transition-transform cursor-pointer no-select no-double-tap-zoom gpu-accelerated ${localCollapsed ? 'rotate-180' : ''}`}
           >
             <svg className="w-3 h-3 text-[rgb(var(--muted-foreground))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

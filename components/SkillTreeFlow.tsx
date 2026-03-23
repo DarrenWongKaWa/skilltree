@@ -23,6 +23,7 @@ import dagre from 'dagre'
 import type { SkillTree, SkillNodeData } from '@/types'
 import SkillNodeFlow from './SkillNodeFlow'
 import SeedNode from './SeedNode'
+import TreeEdge from './TreeEdge'
 
 // Node dimensions for dagre layout
 const NODE_WIDTH = 160
@@ -34,6 +35,11 @@ const SEED_HEIGHT = 100
 const nodeTypes: NodeTypes = {
   skillNode: SkillNodeFlow,
   seedNode: SeedNode,
+}
+
+// Custom edge types
+const edgeTypes = {
+  treeEdge: TreeEdge,
 }
 
 interface SkillTreeFlowProps {
@@ -187,7 +193,7 @@ function transformTreeToFlowData(
         id: `seed-root-${firstLevelNode.id}`,
         source: 'seed-root',
         target: firstLevelNode.id,
-        type: 'smoothstep',
+        type: 'treeEdge',
         style: { stroke: 'rgb(var(--lime-bright))', strokeWidth: 3 },
         markerEnd: { type: MarkerType.ArrowClosed, color: 'rgb(var(--lime-dark))' },
       })
@@ -203,7 +209,7 @@ function transformTreeToFlowData(
           id: `${prereqId}-${node.id}`,
           source: prereqId,
           target: node.id,
-          type: 'smoothstep',
+          type: 'treeEdge',
           data: { isLearned: sourceNode?.status === 'learned' },
           style: {
             stroke: sourceNode?.status === 'learned' ? 'rgb(var(--lime-bright))' : 'rgb(var(--lime-medium))',
@@ -399,6 +405,18 @@ function SkillTreeFlowInner({
     onNodeSelect(null as any)
   }, [onNodeSelect])
 
+  // Memoize minimap node color to prevent re-renders during drag
+  const getMiniMapNodeColor = useCallback((node: Node) => {
+    const data = node.data as unknown as SkillNodeData
+    if (!data?.status) return 'rgb(var(--muted))'
+    switch (data.status) {
+      case 'learned': return 'rgb(var(--lime-medium))'
+      case 'available': return 'rgb(var(--lime-bright))'
+      case 'locked': return 'rgb(var(--muted))'
+      default: return 'rgb(var(--muted))'
+    }
+  }, [])
+
   return (
     <div className="w-full h-full">
       <ReactFlow
@@ -410,16 +428,19 @@ function SkillTreeFlowInner({
         onPaneClick={handlePaneClick}
         onMoveEnd={(_, viewport) => onViewportChange(viewport)}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         selectionMode={SelectionMode.Partial}
         minZoom={0.15}
         maxZoom={2.5}
         defaultEdgeOptions={{
-          type: 'smoothstep',
+          type: 'treeEdge',
           style: { stroke: 'rgb(var(--lime-medium))', strokeWidth: 2 },
           markerEnd: { type: MarkerType.ArrowClosed, color: 'rgb(var(--lime-dark))' },
         }}
         panOnDrag
         selectNodesOnDrag={false}
+        nodesFocusable={false}
+        edgesFocusable={false}
         proOptions={{ hideAttribution: true }}
       >
         <Background
@@ -436,16 +457,7 @@ function SkillTreeFlowInner({
           className="!bg-[rgb(var(--card))] !border-[rgb(var(--border))] !shadow-lg"
         />
         <MiniMap
-          nodeColor={(node) => {
-            const data = node.data as unknown as SkillNodeData
-            if (!data?.status) return 'rgb(var(--muted))'
-            switch (data.status) {
-              case 'learned': return 'rgb(var(--lime-medium))'
-              case 'available': return 'rgb(var(--lime-bright))'
-              case 'locked': return 'rgb(var(--muted))'
-              default: return 'rgb(var(--muted))'
-            }
-          }}
+          nodeColor={getMiniMapNodeColor}
           maskColor="rgb(var(--background))"
           className="!bg-[rgb(var(--card))] !border-[rgb(var(--border))]"
         />

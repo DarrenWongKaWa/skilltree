@@ -17,12 +17,12 @@ function SeedNodeComponent({ data }: NodeProps) {
       <Handle
         type="source"
         position={Position.Top}
-        className="!w-3 !h-3 !bg-[rgb(var(--lime-medium))] !border-2 !border-white"
+        className="!w-3 !h-3 !bg-[rgb(var(--seed-brown))] !border-2 !border-white/50"
       />
 
-      {/* Seed shape */}
-      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[rgb(var(--lime-dark))] to-[rgb(var(--lime-medium))] shadow-lg flex items-center justify-center animate-pulse">
-        <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+      {/* Seed shape - earthy brown gradient */}
+      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[rgb(var(--seed-brown))] to-[rgb(var(--seed-dark))] shadow-lg flex items-center justify-center animate-pulse">
+        <svg className="w-8 h-8 text-white/90" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 22V12M12 12C12 12 7 9 7 5C7 3 9 2 12 2C15 2 17 3 17 5C17 9 12 12 12 12ZM5 12H2M22 12H19M12 12V22"/>
         </svg>
       </div>

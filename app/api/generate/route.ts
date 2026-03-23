@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const TREE_PROMPT = `You are a subject expert. User wants to learn: {topic}
 
+IMPORTANT: Output ALL content in ENGLISH ONLY. No Chinese, no other languages.
+
 Generate a compact skill tree with:
 1. Exactly 3 top-level nodes, each with 2-3 child nodes
 2. Prerequisites, difficulty level (Beginner/Intermediate/Advanced)
 3. Core resources: 1 book + 1 website per node with real URLs
 4. Overall description (within 50 chars)
+5. ALL node names and descriptions MUST be in English
 
 JSON format:
 {"topic":"Name","description":"Desc","nodes":[{"id":"id","name":"Name","description":"Desc","level":"Beginner|Intermediate|Advanced","prerequisites":["id"],"children":["id"],"resources":[{"title":"T","url":"https://...","type":"book"}]}],"books":[{"title":"T","author":"A","url":"https://..."}],"websites":[{"title":"T","url":"https://..."}]}
@@ -27,7 +30,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: 'MiniMax-M2.7',
         messages: [
-          { role: 'system', content: 'You are a subject expert. Output JSON only, no other text.' },
+          { role: 'system', content: 'You are a subject expert. Output JSON only, no other text. ALL content MUST be in English only - no Chinese or any other language.' },
           { role: 'user', content: TREE_PROMPT.replace('{topic}', topic) }
         ],
         temperature: 0.3,

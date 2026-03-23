@@ -5,6 +5,7 @@ const QUIZ_PROMPT = `You are a quiz expert. Create 3 questions for the concept "
 - Question 2: Understanding check (multiple choice, 4 options)
 - Question 3: Application analysis (short answer)
 
+IMPORTANT: Output ALL content in ENGLISH ONLY. No Chinese, no other languages.
 Also provide the answer and explanation for each question.
 
 Output strictly in JSON format:
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         model: 'MiniMax-M2.7',
         messages: [
-          { role: 'system', content: 'You are a quiz expert. Output JSON only, no other text.' },
+          { role: 'system', content: 'You are a quiz expert. Output JSON only, no other text. ALL content MUST be in English only - no Chinese or any other language.' },
           { role: 'user', content: QUIZ_PROMPT.replace('{nodeName}', nodeName) }
         ],
         temperature: 0.8,

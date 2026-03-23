@@ -36,6 +36,7 @@ interface AppState {
   // Actions
   setCurrentTree: (tree: SkillTree | null) => void
   addTree: (tree: SkillTree) => void
+  deleteTree: (treeId: string) => void
   updateNodeStatus: (treeId: string, nodeId: string, status: SkillNode['status']) => void
   setCurrentQuiz: (quiz: Quiz | null) => void
   getTree: (id: string) => SkillTree | undefined
@@ -78,6 +79,18 @@ export const useStore = create<AppState>()(
           trees: { ...state.trees, [tree.id]: tree },
           nodesMaps: { ...state.nodesMaps, [tree.id]: nodesMap },
         }))
+      },
+
+      deleteTree: (treeId) => {
+        set((state) => {
+          const { [treeId]: removed, ...remainingTrees } = state.trees
+          const { [treeId]: removedMap, ...remainingMaps } = state.nodesMaps
+          return {
+            trees: remainingTrees,
+            nodesMaps: remainingMaps,
+            currentTree: state.currentTree?.id === treeId ? null : state.currentTree,
+          }
+        })
       },
 
       updateNodeStatus: (treeId, nodeId, status) =>
