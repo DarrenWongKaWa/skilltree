@@ -39,8 +39,15 @@ export default function TreeView({ treeId }: { treeId: string }) {
     }
   }, [tree?.id])
 
-  const onNodeSelect = useCallback((node: SkillNodeData) => {
-    setSelectedNode(prev => prev?.id === node.id ? null : node)
+  const onNodeSelect = useCallback((node: SkillNodeData | null) => {
+    // 1. Guard clause: if node is null, clear the selection and exit early
+    if (!node) {
+      setSelectedNode(null);
+      return;
+    }
+
+    // 2. Safe to check node.id now
+    setSelectedNode(prev => prev?.id === node.id ? null : node);
   }, [])
 
   const handleCollapse = useCallback((nodeId: string) => {
