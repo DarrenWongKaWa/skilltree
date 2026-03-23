@@ -9,7 +9,7 @@ import type { SkillTree } from '@/types'
 
 export default function HomePage() {
   const router = useRouter()
-  const { trees, addTree, setCurrentTree } = useStore()
+  const { trees, addTree, setCurrentTree, deleteTree } = useStore()
   const [topic, setTopic] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -117,18 +117,18 @@ export default function HomePage() {
         </svg>
 
         {/* Fog layers */}
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[rgba(180,220,180,0.15)] to-transparent animate-mist-drift" />
-        <div className="absolute bottom-16 left-0 w-full h-32 bg-gradient-to-t from-[rgba(160,200,160,0.1)] to-transparent animate-mist-drift-slow" />
-        <div className="absolute bottom-24 left-0 w-full h-24 bg-gradient-to-t from-[rgba(140,180,140,0.08)] to-transparent animate-mist-drift" />
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[rgba(20,60,35,0.6)] to-transparent animate-mist-drift" />
+        <div className="absolute bottom-16 left-0 w-full h-32 bg-gradient-to-t from-[rgba(15,45,28,0.5)] to-transparent animate-mist-drift-slow" />
+        <div className="absolute bottom-24 left-0 w-full h-24 bg-gradient-to-t from-[rgba(10,35,20,0.4)] to-transparent animate-mist-drift" />
 
-        {/* Fireflies / glowing particles */}
+        {/* Fireflies / glowing particles - muted forest green glow */}
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
             className="absolute w-1.5 h-1.5 rounded-full"
             style={{
-              background: `rgba(${80 + (i % 40)}, ${200 + (i % 30)}, ${80 + (i % 40)}, 0.8)`,
-              boxShadow: `0 0 8px 3px rgba(${80 + (i % 40)}, ${200 + (i % 30)}, ${80 + (i % 40)}, 0.5)`,
+              background: `rgba(${40 + (i % 30)}, ${120 + (i % 25)}, ${50 + (i % 20)}, ${0.5 + (i % 3) * 0.1})`,
+              boxShadow: `0 0 6px 2px rgba(${40 + (i % 30)}, ${120 + (i % 25)}, ${50 + (i % 20)}, ${0.3 + (i % 3) * 0.1})`,
               left: `${5 + (i * 13) % 90}%`,
               bottom: `${10 + (i * 17) % 60}%`,
               animation: `firefly-${i % 3} ${2 + (i % 3)}s ease-in-out infinite`,
@@ -137,9 +137,9 @@ export default function HomePage() {
           />
         ))}
 
-        {/* Ambient light rays */}
-        <div className="absolute top-0 left-1/4 w-32 h-full bg-gradient-to-b from-[rgba(255,255,200,0.05)] to-transparent rotate-12 animate-gentle-float" />
-        <div className="absolute top-0 left-2/3 w-24 h-full bg-gradient-to-b from-[rgba(200,255,200,0.04)] to-transparent -rotate-6 animate-gentle-float" style={{ animationDelay: '1s' }} />
+        {/* Ambient light rays - subtle forest filtered light */}
+        <div className="absolute top-0 left-1/4 w-32 h-full bg-gradient-to-b from-[rgba(100,160,80,0.04)] to-transparent rotate-12 animate-gentle-float" />
+        <div className="absolute top-0 left-2/3 w-24 h-full bg-gradient-to-b from-[rgba(80,140,60,0.03)] to-transparent -rotate-6 animate-gentle-float" style={{ animationDelay: '1s' }} />
       </div>
 
       {/* Header */}
@@ -383,13 +383,19 @@ export default function HomePage() {
                 const percent = Math.round((learned / total) * 100)
                 const isComplete = percent === 100
                 return (
-                  <button
+                  <div
                     key={tree.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => {
                       setCurrentTree(tree)
                       router.push(`/tree/${tree.id}`)
                     }}
-                    className="group forest-card rounded-2xl border border-[rgb(var(--lime-medium))]/20 p-6 text-left hover:shadow-xl hover:border-[rgb(var(--lime-medium))]/50 transition-all duration-300 animate-fade-in"
+                    onKeyDown={(e) => e.key === 'Enter' && (() => {
+                      setCurrentTree(tree)
+                      router.push(`/tree/${tree.id}`)
+                    })()}
+                    className="group forest-card rounded-2xl border border-[rgb(var(--lime-medium))]/20 p-6 text-left hover:shadow-xl hover:border-[rgb(var(--lime-medium))]/50 transition-all duration-300 animate-fade-in cursor-pointer"
                     style={{ animationDelay: `${300 + index * 50}ms` }}
                   >
                     <div className="flex items-start justify-between mb-4">
@@ -409,16 +415,35 @@ export default function HomePage() {
                         </div>
                         <p className="text-sm text-[rgb(var(--lime-medium))] opacity-70 line-clamp-1">{tree.description}</p>
                       </div>
-                      <div className="text-right ml-4">
-                        <div
-                          className={`text-2xl font-bold ${isComplete ? 'text-[rgb(var(--lime-bright))]' : 'text-[rgb(var(--lime-medium))]'}`}
-                          style={{ fontFamily: 'var(--font-brush-chinese)' }}
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div
+                            className={`text-2xl font-bold ${isComplete ? 'text-[rgb(var(--lime-bright))]' : 'text-[rgb(var(--lime-medium))]'}`}
+                            style={{ fontFamily: 'var(--font-brush-chinese)' }}
+                          >
+                            {percent}%
+                          </div>
+                          <div className="text-xs text-[rgb(var(--lime-medium))] opacity-60">
+                            {learned}/{total} nodes
+                          </div>
+                        </div>
+                        {/* Delete button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (confirm(`Delete "${tree.topic}" skill tree? This cannot be undone.`)) {
+                              deleteTree(tree.id)
+                              // If we're viewing this tree, redirect to home
+                              router.push('/')
+                            }
+                          }}
+                          className="p-2 rounded-lg hover:bg-[rgb(var(--destructive))]/20 transition-colors opacity-0 group-hover:opacity-100"
+                          title="Delete tree"
                         >
-                          {percent}%
-                        </div>
-                        <div className="text-xs text-[rgb(var(--lime-medium))] opacity-60">
-                          {learned}/{total} nodes
-                        </div>
+                          <svg className="w-4 h-4 text-[rgb(var(--destructive))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -436,7 +461,7 @@ export default function HomePage() {
                         View →
                       </span>
                     </div>
-                  </button>
+                  </div>
                 )
               })}
             </div>
