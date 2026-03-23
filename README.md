@@ -1,28 +1,49 @@
 # SkillTree - AI-Powered Skill Tree Learning Platform
 
-An AI-driven interactive skill tree learning tool that helps you systematically plan your learning path.
+An AI-driven interactive skill tree learning tool with GPU-optimized rendering and smooth bezier curve animations.
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black)
-![React](https://img.shields.io/badge/React-19-61DAFB)
-![MiniMax](https://img.shields.io/badge/AI-MiniMax-6366F1)
+![Next.js](https://img.shields.io/badge/Next.js-16.2-black)
+![React Flow](https://img.shields.io/badge/React%20Flow-12.10-blue)
+![Dagre](https://img.shields.io/badge/Layout-Dagre-green)
+![Zustand](https://img.shields.io/badge/State-Zustand-purple)
 
 ## Features
 
 - **AI-Generated Skill Trees** - Enter any topic and AI automatically generates a complete knowledge graph
-- **Structured Learning Path** - Clear prerequisite dependencies, from beginner to expert
-- **Smart Quiz** - Click on nodes to generate targeted practice questions
-- **Node Status Tracking** - Mark mastery levels and track learning progress
-- **Responsive Design** - Works on mobile, tablet, and desktop
-- **Interactive Canvas** - Drag-to-pan, zoom (40%-200%), collapse/expand branches
-- **Day/Night Theme** - Dynamic theme with forest-to-cyberpunk background evolution
+- **Interactive Canvas** - Drag-to-pan, zoom (15%-250%), collapse/expand branches with GPU-optimized bezier edges
+- **Fluorescent Flow Animation** - Smooth flowing sap effect on learned edges, hardware-accelerated via stroke-dashoffset
+- **BFS Collapse/Expand** - Recursively hide/show all descendants with instant feedback
+- **Dagre Layout Engine** - Automatic hierarchical positioning (Bottom-to-Top) with symmetric centering
+- **Node Status Tracking** - Learned / Available / Locked states with visual distinction
+- **Smart Quiz** - Click nodes to generate targeted practice questions
+- **Day/Night Theme** - Dynamic forest-themed color palette with seed nodes and lime accents
+- **Responsive Design** - Mobile sidebar drawer, touch-friendly controls
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
-- **UI**: Custom SVG canvas with fruit-style nodes
-- **State Management**: Zustand
-- **Styling**: Tailwind CSS
+- **Framework**: Next.js 16.2 (App Router, Turbopack)
+- **Canvas**: @xyflow/react v12 with custom edge types
+- **Layout**: Dagre.js for hierarchical tree positioning
+- **State Management**: Zustand with O(1) nodesMap lookups
+- **Styling**: Tailwind CSS v4
 - **AI Model**: MiniMax-M2
+
+## Architecture
+
+```
+Layout Engine (Dagre)
+  rankdir: 'BT' (Bottom-to-Top)
+  nodesep: 120, ranksep: 220
+
+Interaction (BFS Traversal)
+  getAllDescendants() → Queue-based breadth-first search
+  Hidden nodes/edges calculated on collapse
+
+Rendering (React Flow)
+  Custom treeEdge type with getBezierPath
+  3-layer glow: ambient (12px) → neon halo (6px) → white core (1.5px)
+  stroke-dashoffset animation: 2.5s linear infinite
+```
 
 ## 🚀 Quick Start
 
@@ -52,74 +73,49 @@ Visit http://localhost:3000
 
 ## 📖 How to Use
 
-1. **Generate Skill Tree** - Enter a topic you want to learn (e.g., "Python", "Machine Learning")
-2. **Explore Knowledge Graph** - Zoom and drag nodes to view the complete structure
-3. **Start Learning** - Click nodes to view details and resource recommendations
-4. **Test Mastery** - Use Quiz to verify your learning
-5. **Track Progress** - Click nodes to mark them as "learned"
+1. **Generate Skill Tree** - Enter a topic (e.g., "Python", "Machine Learning")
+2. **Explore Knowledge Graph** - Drag to pan, scroll to zoom, click nodes to select
+3. **Collapse/Expand** - Click the minus icon on learned/available nodes to hide descendants
+4. **Mark Mastery** - Click nodes to mark as learned (enables green flowing edges)
+5. **Take Quizzes** - Click the quiz icon to test your knowledge
 
 ## 🎨 Live Demo
 
-**https://skill-tree-rosy.vercel.app**
+**https://skilltree-fawn.vercel.app**
 
 ## Project Structure
 
 ```
 skilltree/
-├── app/                          # Next.js App Router
-│   ├── api/                      # Backend API routes
-│   │   ├── generate/             # AI skill tree generation endpoint
-│   │   │   └── route.ts
-│   │   ├── quiz/                 # AI quiz generation endpoint
-│   │   ├── evaluate/             # Answer evaluation endpoint
-│   │   └── test/
-│   ├── layout.tsx                # Root layout with theme provider
-│   ├── page.tsx                  # Landing page
-│   ├── globals.css               # Global styles + theme variables
-│   └── tree/
-│       └── [id]/
-│           └── page.tsx          # Skill tree visualization page
+├── app/
+│   ├── api/
+│   │   ├── generate/route.ts      # AI skill tree generation (Dagre layout)
+│   │   ├── quiz/route.ts          # AI quiz generation
+│   │   └── evaluate/route.ts      # Answer evaluation
+│   ├── globals.css                # Theme variables, edgeFlow animation
+│   ├── layout.tsx                 # Root layout with theme
+│   ├── page.tsx                   # Landing page
+│   └── tree/[id]/page.tsx        # Skill tree visualization
 ├── components/
-│   ├── TreeView.tsx              # Main tree page orchestrator
-│   ├── SkillTreeCanvas.tsx       # Canvas viewport, pan/zoom, layout
-│   ├── SkillNode.tsx             # Individual node (fruit) renderer
-│   ├── TreeBranch.tsx            # SVG bezier curve branches
-│   ├── SkillListSidebar.tsx      # Left sidebar with filtering
-│   ├── BackgroundEvolution.tsx   # Dynamic background effect
-│   ├── NodeDetail.tsx            # Node detail panel
-│   ├── SkillNodeCard.tsx         # Card variant for nodes
-│   ├── QuizModal.tsx             # Quiz dialog
-│   ├── ThemeToggle.tsx           # Dark/light mode toggle
-│   └── ThemeProvider.tsx         # Theme context provider
+│   ├── SkillTreeFlow.tsx          # React Flow canvas + Dagre layout
+│   ├── SkillNodeFlow.tsx          # Custom node with collapse/expand
+│   ├── TreeEdge.tsx               # Custom bezier edge with glow layers
+│   ├── SeedNode.tsx               # Root seed node component
+│   └── SkillListSidebar.tsx       # Left sidebar with tree list
 ├── store/
-│   └── index.ts                  # Zustand store (tree data + nodesMap)
-├── lib/
-│   └── api.ts                    # API client functions
-├── types/
-│   └── index.ts                  # TypeScript type definitions
-└── package.json
+│   └── index.ts                   # Zustand store (trees, nodesMaps, collapsedNodes)
+└── types/
+    └── index.ts                   # TypeScript definitions
 ```
 
-## ⚙️ Development
+## ⚙️ Performance Optimizations
 
-```bash
-# Clone repository
-git clone https://github.com/DarrenWongKaWa/skilltree.git
-cd skilltree
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Deploy to production
-npm start
-```
+- **No CSS Filters** - All glow effects via layered SVG paths (no `filter: drop-shadow`)
+- **Euclidean Path Estimation** - Avoids expensive `getTotalLength()` during drag
+- **Memoized Callbacks** - `useCallback` on MiniMap nodeColor
+- **Local Collapse State** - Immediate toggle before parent state update
+- **`nodesFocusable={false}`** - Eliminates focus outline repaints during drag
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License
