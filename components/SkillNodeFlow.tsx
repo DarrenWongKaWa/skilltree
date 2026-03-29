@@ -85,8 +85,11 @@ function SkillNodeFlowComponent({ data, selected }: NodeProps) {
           ${node.status === 'learned' ? 'animate-pulse' : ''}
           ${localCollapsed ? 'opacity-60' : ''}
           flex items-center justify-center
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[rgb(var(--lime-medium))]
         `}
         title={node.name}
+        aria-label={`${node.name}, ${node.level} level, ${node.status === 'learned' ? 'learned' : node.status === 'available' ? 'available to learn' : 'locked'}`}
+        aria-pressed={selected}
       >
         {/* Status icon */}
         {node.status === 'learned' && (

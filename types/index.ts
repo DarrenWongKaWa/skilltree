@@ -61,3 +61,34 @@ export interface Progress {
   learnedNodes: string[]
   updatedAt: number
 }
+
+// API Request/Response types
+export interface GenerateRequest {
+  topic: string
+}
+
+export interface GenerateResponse {
+  tree?: SkillTree
+  error?: string
+}
+
+export interface QuizRequest {
+  nodeName: string
+  nodeDescription?: string
+  nodeId: string
+}
+
+export interface QuizResponse {
+  quiz?: Quiz
+  error?: string
+}
+
+export interface EvaluateRequest {
+  quiz: Quiz
+  answers: string[]
+}
+
+export interface EvaluateResponse {
+  result?: QuizResult
+  error?: string
+}

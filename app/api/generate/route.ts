@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { validateGenerateRequest } from '@/lib/validation'
 
 const TREE_PROMPT = `You are a subject expert. User wants to learn: {topic}
 
@@ -18,7 +19,13 @@ JSON only, no explanation.`
 
 export async function POST(req: NextRequest) {
   try {
-    const { topic } = await req.json()
+    const body = await req.json()
+    const validation = validateGenerateRequest(body)
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.errors.join(', ') }, { status: 400 })
+    }
+
+    const { topic } = body
 
     const apiUrl = (process.env.MINIMAX_BASE_URL || 'https://api.minimaxi.com/v1') + '/chat/completions'
     const response = await fetch(apiUrl, {

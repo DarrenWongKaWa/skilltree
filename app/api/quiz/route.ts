@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { validateQuizRequest } from '@/lib/validation'
 
 const QUIZ_PROMPT = `You are a quiz expert. Create 3 questions for the concept "{nodeName}":
 - Question 1: Basic concept (multiple choice, 4 options)
@@ -43,7 +44,13 @@ Output only JSON, no other text.`
 
 export async function POST(req: NextRequest) {
   try {
-    const { nodeName, nodeDescription, nodeId } = await req.json()
+    const body = await req.json()
+    const validation = validateQuizRequest(body)
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.errors.join(', ') }, { status: 400 })
+    }
+
+    const { nodeName, nodeDescription, nodeId } = body
 
     const apiUrl = (process.env.MINIMAX_BASE_URL || 'https://api.minimaxi.com/v1') + '/chat/completions'
     const response = await fetch(apiUrl, {

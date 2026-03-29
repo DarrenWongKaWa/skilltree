@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { validateEvaluateRequest } from '@/lib/validation'
 
 export async function POST(req: NextRequest) {
   try {
-    const { quiz, answers } = await req.json()
+    const body = await req.json()
+    const validation = validateEvaluateRequest(body)
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.errors.join(', ') }, { status: 400 })
+    }
+
+    const { quiz, answers } = body
     const { questions } = quiz
 
     let score = 0
