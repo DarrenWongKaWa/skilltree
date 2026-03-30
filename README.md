@@ -88,7 +88,7 @@ Visit http://localhost:3000
 
 ## 🎨 Live Demo
 
-**https://skilltree-fawn.vercel.app**
+**https://skill-tree-rosy.vercel.app**
 
 ## Project Structure
 
