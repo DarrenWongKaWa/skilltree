@@ -28,6 +28,13 @@ An AI-driven interactive skill tree learning tool with GPU-optimized rendering a
 - **Styling**: Tailwind CSS v4
 - **AI Model**: MiniMax-M2
 
+## Security & Validation
+
+- **Input Validation**: All API endpoints validate request body schema
+- **XSS Protection**: String sanitization on all user inputs
+- **Rate Limiting Ready**: Client IP extraction for rate limiting
+- **Type Safety**: Full TypeScript coverage with API request/response types
+
 ## Architecture
 
 ```
@@ -115,6 +122,13 @@ skilltree/
 - **Memoized Callbacks** - `useCallback` on MiniMap nodeColor
 - **Local Collapse State** - Immediate toggle before parent state update
 - **`nodesFocusable={false}`** - Eliminates focus outline repaints during drag
+- **React.memo & useMemo** - Minimizes unnecessary re-renders
+
+## ♿ Accessibility
+
+- **ARIA Labels** - Full screen reader support on all interactive nodes
+- **Focus Indicators** - Visible focus rings for keyboard navigation
+- **Semantic HTML** - Proper button elements and ARIA states
 
 ## 📜 License
 
