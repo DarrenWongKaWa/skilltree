@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import type { Quiz } from '@/types'
+import type { Quiz, QuizResult } from '@/types'
 import { evaluateQuiz } from '@/lib/api'
 
 interface QuizModalProps {
@@ -13,7 +13,7 @@ interface QuizModalProps {
 export default function QuizModal({ quiz, onClose, onPass }: QuizModalProps) {
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<QuizResult | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
