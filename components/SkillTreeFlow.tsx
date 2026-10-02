@@ -46,7 +46,7 @@ interface SkillTreeFlowProps {
   tree: SkillTree
   collapsedNodes: Set<string>
   selectedNode: SkillNodeData | null
-  onNodeSelect: (node: SkillNodeData) => void
+  onNodeSelect: (node: SkillNodeData | null) => void
   onCollapse: (nodeId: string) => void
 }
 
@@ -402,7 +402,7 @@ function SkillTreeFlowInner({
   )
 
   const handlePaneClick = useCallback(() => {
-    onNodeSelect(null as any)
+    onNodeSelect(null)
   }, [onNodeSelect])
 
   // Memoize minimap node color to prevent re-renders during drag

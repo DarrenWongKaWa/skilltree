@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
 
     // Strategy 4: Brute force - find largest valid JSON with nodes array
     if (!potentialJson) {
-      let candidates: { start: number, end: number, size: number }[] = []
+      const candidates: { start: number, end: number, size: number }[] = []
       let depth = 0
       let inString = false
       let escape = false

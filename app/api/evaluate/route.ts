@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { validateEvaluateRequest } from '@/lib/validation'
+import type { QuizQuestion } from '@/types'
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     let score = 0
     const feedback: Record<string, string> = {}
 
-    questions.forEach((q: any, i: number) => {
+    questions.forEach((q: QuizQuestion, i: number) => {
       const userAnswer = answers[i]?.trim().toUpperCase()
       const correctAnswer = q.answer.trim().toUpperCase()
 
